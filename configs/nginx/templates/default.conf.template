@@ -1,0 +1,18 @@
+upstream ssl {
+	server 127.0.0.1:${HTTP_PORT};
+}
+
+server {
+	listen ${HTTP_PORT};
+	listen [::]:${HTTP_PORT};
+    http2 on;
+	server_name ${MAIN_DOMAIN};
+
+	location / {
+		proxy_pass http://${FRONTEND_DOMAIN}:${FRONTEND_PORT};
+	}
+
+    location /api {
+		proxy_pass http://${API_DOMAIN}:${API_PORT};
+    }
+}
