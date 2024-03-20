@@ -4,49 +4,21 @@ import (
     "database/sql"
     "fmt"
     "log"
-    "net/http"
-    "github.com/Masterminds/squirrel"
+	"github.com/labstack/echo/v4"
     _ "github.com/lib/pq"
+
+    "github.com/theCompanyDream/user-angular/apps/backend/controller"
 )
-
-
-var db *sql.DB
-var sq squirrel.StatementBuilder
-
-func initDB() {
-    var err error
-    db, err = sql.Open("postgres", "postgres://username:password@localhost/dbname?sslmode=disable")
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(db)
-}
-
-func getUser(w http.ResponseWriter, r *http.Request) {
-    // Assume URL like /users/{id}
-    // Extract the user ID from the URL and query the database
-}
-
-func createUser(w http.ResponseWriter, r *http.Request) {
-    // Parse user details from the request body and insert into the database
-}
-
-func updateUser(w http.ResponseWriter, r *http.Request) {
-    // Parse user details from the request body and insert into the database
-}
-
-func deleteUser(w http.ResponseWriter, r *http.Request) {
-    // Parse user details from the request body and insert into the database
-}
 
 func main() {
     initDB()
     defer db.Close()
+    server := echo.New()
 
-    http.HandleFunc("/users", getUser)
-    http.HandleFunc("/users/create", createUser)
+    e.POST("/user", createUser)
+    e.GET("/user/:id", getUser)
+    e.PUT("/user/:id", updateUser)
+    e.DELETE("/user/:id", deleteUser)
 
-    fmt.Println("Server is running...")
-    http.ListenAndServe(":8080", nil)
+    e.Logger.Info("Server is running...")
 }
