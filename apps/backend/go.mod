@@ -1,4 +1,4 @@
-module backend
+module github.com/theCompanyDream/user-angular/apps/backend
 
 go 1.13
 

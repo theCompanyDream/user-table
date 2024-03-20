@@ -1,0 +1,11 @@
+
+CREATE TABLE admin.USERS (
+    ID int NOTNULL,
+	USER_NAME varchar(50) NOTNULL,
+    FNAME varchar(40) NOTNUL,
+    LNAME varchar(40) NOTNULL,
+	EMAIL varchar(40) NOTNULL,
+	USER_STATUS varchar(1) NOTNULL,
+	DEPARTMENT varchar(255),
+	PRIMARY KEY(ID)
+);

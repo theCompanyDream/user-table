@@ -1,24 +1,29 @@
 package main
 
 import (
-    "database/sql"
-    "fmt"
-    "log"
 	"github.com/labstack/echo/v4"
-    _ "github.com/lib/pq"
-
     "github.com/theCompanyDream/user-angular/apps/backend/controller"
+    "github.com/theCompanyDream/user-angular/apps/backend/repository"
+    "os"
 )
 
 func main() {
-    initDB()
-    defer db.Close()
+    repository.initDB()
+    defer repository.Close()
     server := echo.New()
 
-    e.POST("/user", createUser)
-    e.GET("/user/:id", getUser)
-    e.PUT("/user/:id", updateUser)
-    e.DELETE("/user/:id", deleteUser)
+    server.POST("/user", controller.CreateUser)
+    server.GET("/users", controller.GetUsers)
+    server.GET("/user/:id", controller.GetUser)
+    server.PUT("/user/:id", controller.UpdateUser)
+    server.DELETE("/user/:id", controller.DeleteUser)
 
-    e.Logger.Info("Server is running...")
+    server.Logger.Info("Server is running...")
+    port := os.Getenv("BACKEND_PORT")
+    if port != nil {
+        serverStartCode := fmt.Sprintf(":%s", port)
+        server.Logger.Fatal(server.Start(serverStartCode))
+    } else {
+        server.Logger.Fatal(server.Start(":3000"))
+    }
 }
