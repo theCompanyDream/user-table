@@ -28,7 +28,4 @@ stop:
 	docker compose --profile development stop
 
 test:
-	@echo "Testing Qohelet"
-
-deploy:
-	@echo "Deploying Qohelet Backend"
+	@echo "Testing User"

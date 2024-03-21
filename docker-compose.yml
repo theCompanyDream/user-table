@@ -43,21 +43,21 @@ services:
 
   api:
     container_name: ${BACKEND_NAME}
+    command: ["go", "run", "main.go"]
     env_file:
       - .env
     build:
-      context: apps/backend/
+      context: ./apps/backend
+      dockerfile: Dockerfile
     volumes:
-      - ./apps/backend:/app
+      - ./apps/backend:/go/src:rw
 
   web:
     container_name: ${FRONTEND_NAME}
     env_file:
       - .env
     build:
-      context: apps/frontend/
-      # target: builder
-    ports:
-      - 4200:4200
+      context: ./apps/frontend/
+      dockerfile: Dockerfile
     volumes:
       - ./apps/frontend:/project

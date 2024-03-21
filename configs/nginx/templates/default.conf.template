@@ -1,7 +1,3 @@
-upstream ssl {
-	server 127.0.0.1:${HTTP_PORT};
-}
-
 server {
 	listen ${HTTP_PORT};
 	listen [::]:${HTTP_PORT};

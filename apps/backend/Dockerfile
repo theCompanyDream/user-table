@@ -1,8 +1,8 @@
 # Specifies a parent image
-FROM golang:1.22.1-bookworm
+FROM golang:1.22.0-bookworm
 
 # Creates an app directory to hold your app’s source code
-WORKDIR /app
+WORKDIR /opt/user_service
 
 # Copies everything from your root directory into /app
 COPY . .
@@ -11,10 +11,7 @@ COPY . .
 RUN go mod download
 
 # Builds your app with optional configuration
-RUN go build -o /godocker
-
-# Tells Docker which network port your container listens on
-EXPOSE 8080
+RUN go build -o userService
 
 # Specifies the executable command that runs when the container starts
-CMD [ “/godocker” ]
+CMD [ “./userService” ]
