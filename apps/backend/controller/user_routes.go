@@ -37,7 +37,6 @@ func checkConstraints(c echo.Context) *db.User {
 }
 
 func GetUser(c echo.Context) error {
-	// Assume URL like /users/{id}
 	// Extract the user ID from the URL and query the database
 	request := checkConstraints(c)
 	user, err := db.GetUser(request)
@@ -48,7 +47,6 @@ func GetUser(c echo.Context) error {
 }
 
 func GetUsers(c echo.Context) error {
-	// Assume URL like /users/{id}
 	// Extract the user ID from the URL and query the database
 	var page, limit int
 	search := c.QueryParam("search")

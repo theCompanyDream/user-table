@@ -20,6 +20,7 @@ func main() {
 
 	// Middleware
 	server.Use(middleware.Recover())
+	server.Use(middleware.Logger())
 
 	server.GET("/swagger/*", echoSwagger.WrapHandler)
 	server.GET("/", controller.Home)
