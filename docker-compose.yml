@@ -9,6 +9,9 @@ services:
     container_name: ${PROXY_NAME}
     restart: always
     image: nginx:alpine
+    depends_on:
+      - ${BACKEND_NAME}
+      - ${FRONTEND_NAME}
     env_file:
       - .env
     # command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
@@ -44,6 +47,8 @@ services:
   api:
     container_name: ${BACKEND_NAME}
     command: ["go", "run", "main.go"]
+    depends_on:
+      - ${DATABASE_HOST}
     env_file:
       - .env
     build:
@@ -54,6 +59,8 @@ services:
 
   web:
     container_name: ${FRONTEND_NAME}
+    depends_on:
+      - ${BACKEND_NAME}
     env_file:
       - .env
     build:
