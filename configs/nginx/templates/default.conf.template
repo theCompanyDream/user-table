@@ -3,9 +3,9 @@ server {
 	listen [::]:${HTTP_PORT};
     http2 on;
 	server_name ${MAIN_DOMAIN};
-
+	include /etc/nginx/proxy.conf;
 	location / {
-		proxy_pass http://${FRONTEND_NAME}:${FRONTEND_PORT};
+		proxy_pass http://${FRONTEND_NAME}:${FRONTEND_PORT}/;
 	}
 
     location /api {
