@@ -1,31 +1,25 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 // Material Ui
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
-// User Stuff
-import { UserModuleComponent } from './user-module/user-module.component';
-import { UserService } from './user/user.service';
-import { UserTableComponent } from './user-table/user-table.component'
-
 @NgModule({
   declarations: [
     AppComponent,
-    UserModuleComponent,
-    UserTableComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     NoopAnimationsModule,
-    MatSlideToggleModule
+    MatButtonModule,
+    MatMenuModule
   ],
-  providers: [UserService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
