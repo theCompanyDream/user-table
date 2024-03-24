@@ -11,7 +11,8 @@ import (
 )
 
 type User struct {
-	Id         int    `json:"id"`
+	id         string
+	HashId 	   string `json: "json:"Id"`
 	UserName   string `json:"user_name"`
 	FirstName  string `json:"first_name"`
 	LastName   string `json:"last_name"`
@@ -43,11 +44,11 @@ func GetUser(requestedUser *User) (*User, error) {
 	var user *User
 	query := squirrel.Select("*").
 		From("users").
-		Where(squirrel.Eq{"id": requestedUser.Id}).
+		Where(squirrel.Eq{"hash": requestedUser.id}).
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
 
-	err := query.QueryRow().Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
+	err := query.QueryRow().Scan(&user.id, &user.Hash, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +76,7 @@ func GetUsers(search string, page, limit int) ([]User, error) {
 
 	for rows.Next() {
 		var user User
-		if err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department); err != nil {
+		if err := rows.Scan(&user.id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department); err != nil {
 			return nil, err
 		}
 		users = append(users, user)
@@ -97,7 +98,7 @@ func CreateUser(requestedUser *User) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = query.QueryRow().Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
+	err = query.QueryRow().Scan(&user.id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +114,7 @@ func UpdateUser(requestedUser User) (*User, error) {
 		Set("email", requestedUser.Email).
 		Set("user_status", requestedUser.UserStatus).
 		Set("department", requestedUser.Department).
-		Where(squirrel.Eq{"id": requestedUser.Id}).
+		Where(squirrel.Eq{"id": requestedUser.id}).
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
 
@@ -121,7 +122,7 @@ func UpdateUser(requestedUser User) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = query.QueryRow().Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
+	err = query.QueryRow().Scan(&user.id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
 	if err != nil {
 		return nil, err
 	}

@@ -19,11 +19,11 @@ export class UserService {
     return this.http.get(`${this.hostUrl}/user/${id}`)
   }
 
-  createUser(user: User): Observable<User>{
+  createUser(user: User): Observable<any>{
     return this.http.post(`${this.hostUrl}/user`, user)
   }
 
-  updateUser(id: number, user: User): Observable<User>{
+  updateUser(id: number, user: User): Observable<any>{
     return this.http.put(`${this.hostUrl}/user`, user)
   }
 

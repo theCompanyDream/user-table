@@ -1,6 +1,7 @@
 
 CREATE TABLE admin.USERS (
-    ID int NOTNULL,
+    ID UUID NOTNULL,
+	HASH varchar(50) NOTNULL,
 	USER_NAME varchar(50) NOTNULL,
     FNAME varchar(40) NOTNUL,
     LNAME varchar(40) NOTNULL,

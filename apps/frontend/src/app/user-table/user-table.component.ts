@@ -18,12 +18,14 @@ export class UserTableComponent implements OnInit {
   search: string
   pageNumber: number
   limit: number
+  displayedColumns: string[]
 
   constructor(private userService: UserService) {
     this.users = []
     this.search = ""
     this.limit = 10
     this.pageNumber = 1
+    this.displayedColumns = ['UserName', 'Email', 'FirstName', 'LastName', 'Department']
   }
 
   ngOnInit(): void {
