@@ -6,6 +6,7 @@ toolchain go1.22.0
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/lib/pq v1.10.9
 	github.com/swaggo/echo-swagger v1.4.1
