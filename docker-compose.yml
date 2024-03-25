@@ -70,4 +70,4 @@ services:
       context: ./apps/frontend/
       dockerfile: Dockerfile
     volumes:
-      - ./apps/frontend:/opt/user_app
+      - ./apps/frontend/src:/opt/app/src
