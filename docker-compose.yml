@@ -46,6 +46,8 @@ services:
   api:
     container_name: ${BACKEND_NAME}
     command: ["go", "run", "main.go"]
+    networks:
+      - app-nework
     depends_on:
       - ${DATABASE_HOST}
     ports:
@@ -71,3 +73,5 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./apps/frontend/src:/opt/app/src
+    networks:
+      - app-nework
