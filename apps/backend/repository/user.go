@@ -9,19 +9,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
-)
 
-type User struct {
-	// We hide the id because we don't want it to leave beyond the context of the database
-	id         string
-	HashId     string `json: "json:"id"`
-	UserName   string `json:"user_name"`
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	Email      string `json:"email"`
-	UserStatus string `json:"user_status"`
-	Department string `json:"department"`
-}
+	model "github.com/theCompanyDream/user-angular/apps/backend/models"
+)
 
 var db *sql.DB
 
@@ -41,26 +31,26 @@ func InitDB() {
 	}
 }
 
-func GetUser(requestedUser *User) (*User, error) {
+func GetUser(requestedUser *model.User) (*model.User, error) {
 	// Assume URL like /users/{id}
-	var user *User
+	var user *model.User
 	query := squirrel.Select("HASHID, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		From("users").
 		Where(squirrel.Eq{"HASH": requestedUser.HashId}).
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
 
-	err := query.QueryRow().Scan(&user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
+	err := query.QueryRow().Scan(user.HashId, user.UserName, user.FirstName, user.LastName, user.Email, user.UserStatus, user.Department)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func GetUsers(search string, page, limit int) ([]User, error) {
+func GetUsers(search string, page, limit int) ([]model.User, error) {
 	// Assume URL like /users/{id}
 	offset := (page - 1) * limit
-	users := []User{}
+	users := []model.User{}
 
 	query := squirrel.Select("HASHID, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		From("users").
@@ -77,7 +67,7 @@ func GetUsers(search string, page, limit int) ([]User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var user User
+		var user model.User
 		if err := rows.Scan(&user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department); err != nil {
 			return nil, err
 		}
@@ -87,40 +77,41 @@ func GetUsers(search string, page, limit int) ([]User, error) {
 	return users, nil
 }
 
-func CreateUser(requestedUser User) (*User, error) {
+func CreateUser(requestedUser model.User) (*model.User, error) {
 	// Parse user details from the request body and insert into the database
-	var user *User
-	requestedUser.id = uuid.New().String()
-	hash, err := hashObject(requestedUser)
+	var user *model.User
+	id := uuid.New().String()
+	requestedUser.Id = &id
+	hash, err := model.HashObject(requestedUser)
 	if err != nil {
 		return nil, err
 	}
-	requestedUser.HashId = *hash
+	requestedUser.HashId = hash
 	query := squirrel.Insert("users").
 		Columns("ID", "HASH", "USER_NAME", "FIRST_NAME", "LAST_NAME", "EMAIL", "USER_STATUS", "DEPARTMENT").
-		Values(requestedUser.id, requestedUser.HashId, requestedUser.UserName, requestedUser.FirstName, requestedUser.LastName, requestedUser.Email, requestedUser.UserStatus, requestedUser.Department).
+		Values(requestedUser.Id, requestedUser.HashId, requestedUser.UserName, requestedUser.FirstName, requestedUser.LastName, requestedUser.Email, requestedUser.UserStatus, requestedUser.Department).
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
 	_, err = query.Exec()
 	if err != nil {
 		return nil, err
 	}
-	err = query.QueryRow().Scan(&user.id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
+	err = query.QueryRow().Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func UpdateUser(requestedUser User) (*User, error) {
+func UpdateUser(requestedUser model.User) (*model.User, error) {
 	// Parse user details from the request body and insert into the database
-	var user *User
-	hash, err := hashObject(requestedUser)
+	var user *model.User
+	hash, err := model.HashObject(requestedUser)
 	if err != nil {
 		return nil, err
 	}
 
-	requestedUser.HashId = *hash
+	requestedUser.HashId = hash
 	query := squirrel.Update("users").
 		Set("HASH", requestedUser.HashId).
 		Set("FIRST_NAME", requestedUser.FirstName).
@@ -136,7 +127,7 @@ func UpdateUser(requestedUser User) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = query.QueryRow().Scan(&user.id, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
+	err = query.QueryRow().Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
 	if err != nil {
 		return nil, err
 	}
