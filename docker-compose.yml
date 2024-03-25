@@ -1,7 +1,7 @@
 version: '3.9'
 
 networks:
-  turbo-network:
+  app-nework:
     driver: bridge
 
 services:
@@ -16,7 +16,7 @@ services:
       - .env
     # command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     networks:
-      - turbo-network
+      - app-nework
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./configs/nginx/templates:/etc/nginx/templates:rw
@@ -28,14 +28,13 @@ services:
   db:
     container_name: ${DATABASE_HOST}
     image: postgres
-    profiles:
-      - development
     networks:
-      - turbo-network
+      - app-nework
     ports:
       - 5432:5432
     volumes:
       - ./.db-data:/var/lib/postgresql/data
+      - ./configs/sql:/docker-entrypoint-initdb.d
     environment:
       # Beware of special characters in password that can be interpreted by shell
       POSTGRES_DB: ${DATABASE_NAME}
@@ -49,6 +48,8 @@ services:
     command: ["go", "run", "main.go"]
     depends_on:
       - ${DATABASE_HOST}
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
     env_file:
       - .env
     build:
@@ -59,6 +60,8 @@ services:
 
   web:
     container_name: ${FRONTEND_NAME}
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
     depends_on:
       - ${BACKEND_NAME}
     env_file:
@@ -67,4 +70,4 @@ services:
       context: ./apps/frontend/
       dockerfile: Dockerfile
     volumes:
-      - ./apps/frontend:/project
+      - ./apps/frontend:/opt/user_app

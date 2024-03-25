@@ -1,29 +1,32 @@
-FROM --platform=$BUILDPLATFORM node:17.0.1-bullseye-slim as builder
+# Stage 1: Install dependencies
+FROM node:18 AS dependencies
 
-RUN mkdir /project
-WORKDIR /project
+# Set the working directory
+WORKDIR /opt/app
 
-RUN npm install -g @angular/cli@13
+# Copy package.json and yarn.lock to leverage Docker cache
+COPY package.json yarn.lock* ./
 
-COPY package.json package-lock.json ./
-RUN npm ci
+# Install dependencies
+RUN yarn
 
+# Stage 2: Setup the development environment
+FROM node:18 AS development
+
+# Set the working directory
+WORKDIR /opt/app
+
+# Copy the project files
 COPY . .
-CMD ["ng", "serve", "--host", "0.0.0.0"]
 
-FROM builder as dev-envs
+# Copy the node_modules from the dependencies stage
+COPY --from=dependencies /opt/app/node_modules /opt/app/node_modules
 
-RUN <<EOF
-apt-get update
-apt-get install -y --no-install-recommends git
-EOF
+# install angular cli
+RUN npm install -g @angular/cli@16.1
 
-RUN <<EOF
-useradd -s /bin/bash -m vscode
-groupadd docker
-usermod -aG docker vscode
-EOF
-# install Docker tools (cli, buildx, compose)
-COPY --from=gloursdocker/docker / /
+# Expose the Angular serve port
+EXPOSE 4200
 
+# Run ng serve when the container launches
 CMD ["ng", "serve", "--host", "0.0.0.0"]

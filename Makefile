@@ -13,7 +13,7 @@ down:
 
 build:
 	@echo "Building Dev Enviorment"
-	docker compose --build -d
+	docker compose up --build -d
 
 stop:
 	@echo "Stoping services"
