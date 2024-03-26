@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -47,28 +48,11 @@ func checkConstraints(c echo.Context) model.User {
 // @Router /user/{id} [get]
 func GetUser(c echo.Context) error {
 	// Extract the user ID from the URL and query the database
-	request := &model.User{}
-	if id := c.Param("id"); id != "" {
-		request.HashId = &id
+	id := c.Param("id")
+	if id != "" {
+		return c.JSON(http.StatusNotFound, errors.New("id not applicable there"))
 	}
-	if userName := c.Param("user_name"); userName != "" {
-		request.UserName = &userName
-	}
-	if firstName := c.Param("first_name"); firstName != "" {
-		request.FirstName = &firstName
-	}
-	if lastName := c.Param("last_name"); lastName != "" {
-		request.LastName = &lastName
-	}
-	if email := c.Param("email"); email != "" {
-		request.Email = &email
-	}
-	err := c.Validate(request)
-	if err != nil {
-		validationErrors := err.(validator.ValidationErrors)
-		return validationErrors
-	}
-	user, err := db.GetUser(request)
+	user, err := db.GetUser(id)
 	if err != nil {
 		return err
 	}
@@ -99,10 +83,11 @@ func GetUsers(c echo.Context) error {
 	}
 	if queryPage := c.QueryParam("page"); queryPage != "" {
 		i, _ := strconv.Atoi(queryPage)
-		limit = i
+		page = i
 	} else {
 		page = 1
 	}
+	fmt.Printf("page: %d limit: %d\n", page, limit)
 	users, error := db.GetUsers(search, page, limit)
 	if error != nil {
 		return error
@@ -123,10 +108,10 @@ func GetUsers(c echo.Context) error {
 func CreateUser(c echo.Context) error {
 	// Parse user details from the request body and insert into the database
 	request := checkConstraints(c)
-	err := c.Validate(request)
+	err := validate.Struct(request)
 	if err != nil {
 		validationErrors := err.(validator.ValidationErrors)
-		return validationErrors
+		return c.JSON(http.StatusUnprocessableEntity, validationErrorsToMap(validationErrors))
 	}
 	user, error := db.CreateUser(request)
 	if error != nil {
@@ -149,14 +134,15 @@ func CreateUser(c echo.Context) error {
 func UpdateUser(c echo.Context) error {
 	// Parse user details from the request body and insert into the database
 	request := checkConstraints(c)
-	err := c.Validate(request)
+	err := validate.Struct(request)
 	if err != nil {
 		validationErrors := err.(validator.ValidationErrors)
-		return validationErrors
+		return c.JSON(http.StatusUnprocessableEntity, validationErrorsToMap(validationErrors))
 	}
 	if id := c.Param("id"); id != "" {
 		request.HashId = &id
 	}
+	fmt.Println(request)
 	user, error := db.UpdateUser(request)
 	if error != nil {
 		return error
@@ -176,7 +162,7 @@ func UpdateUser(c echo.Context) error {
 // @Router /user/{id} [delete]
 func DeleteUser(c echo.Context) error {
 	// Parse user details from the request body and insert into the database
-	id := c.QueryParam("id")
+	id := c.Param("id")
 	if id == "" {
 		return errors.New("id must not be null")
 	}

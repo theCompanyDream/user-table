@@ -4,7 +4,7 @@ package models
 // @Description User object contains user information.
 type User struct {
 	// We hide the id because we don't want it to leave beyond the context of the database
-	Id *string // This field will be ignored by Swagger as it's unexported (private)
+	Id *string `json:"-"` // This field will be ignored by Swagger as it's unexported (private)
 	// HashId is the public identifier for the user
 	HashId *string `json:"id"` // HashId is a UUID
 	// UserName is the user's username, required, between 5 and 50 characters
