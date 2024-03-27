@@ -12,29 +12,6 @@ import (
 	db "github.com/theCompanyDream/user-angular/apps/backend/repository"
 )
 
-func checkConstraints(c echo.Context) model.User {
-	user := model.User{}
-	if userName := c.FormValue("user_name"); userName != "" {
-		user.UserName = &userName
-	}
-	if firstName := c.FormValue("first_name"); firstName != "" {
-		user.FirstName = &firstName
-	}
-	if lastName := c.FormValue("last_name"); lastName != "" {
-		user.LastName = &lastName
-	}
-	if email := c.FormValue("email"); email != "" {
-		user.Email = &email
-	}
-	if userStatus := c.FormValue("user_status"); userStatus != "" {
-		user.UserStatus = &userStatus
-	}
-	if department := c.FormValue("department"); department != "" {
-		user.Department = &department
-	}
-	return user
-}
-
 // GetUser godoc
 // @Summary Get a single user
 // @Description Get a user by their ID or username
@@ -49,7 +26,7 @@ func checkConstraints(c echo.Context) model.User {
 func GetUser(c echo.Context) error {
 	// Extract the user ID from the URL and query the database
 	id := c.Param("id")
-	if id != "" {
+	if id == "" {
 		return c.JSON(http.StatusNotFound, errors.New("id not applicable there"))
 	}
 	user, err := db.GetUser(id)
@@ -101,19 +78,24 @@ func GetUsers(c echo.Context) error {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param user body User true "User object"
-// @Success 201 {object} models.User "User Created"
+// @Param user body UserCreate true "User object"
+// @Success 201 {object} models.UserDTO "User Created"
 // @Failure 400 {object} object "Bad Request"
 // @Router /user [post]
 func CreateUser(c echo.Context) error {
 	// Parse user details from the request body and insert into the database
-	request := checkConstraints(c)
-	err := validate.Struct(request)
+	request := model.UserCreate{}
+	err := c.Bind(&request)
+	if err != nil {
+		return err
+	}
+	err = validate.Struct(request)
 	if err != nil {
 		validationErrors := err.(validator.ValidationErrors)
 		return c.JSON(http.StatusUnprocessableEntity, validationErrorsToMap(validationErrors))
 	}
-	user, error := db.CreateUser(request)
+	dto := model.CreateToDTO(request)
+	user, error := db.CreateUser(dto)
 	if error != nil {
 		return error
 	}
@@ -127,14 +109,19 @@ func CreateUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Param user body User true "User object"
-// @Success 200 {object} models.User "User Updated"
+// @Param user body UserUpdate true "User object"
+// @Success 200 {object} models.UserDTO "User Updated"
 // @Failure 400 {object} object "Bad Request"
 // @Router /user/{id} [put]
 func UpdateUser(c echo.Context) error {
 	// Parse user details from the request body and insert into the database
-	request := checkConstraints(c)
-	err := validate.Struct(request)
+	// request := checkConstraints(c)
+	request := model.UserUpdate{}
+	err := c.Bind(&request)
+	if err != nil {
+		return err
+	}
+	err = validate.Struct(request)
 	if err != nil {
 		validationErrors := err.(validator.ValidationErrors)
 		return c.JSON(http.StatusUnprocessableEntity, validationErrorsToMap(validationErrors))
@@ -142,8 +129,8 @@ func UpdateUser(c echo.Context) error {
 	if id := c.Param("id"); id != "" {
 		request.HashId = &id
 	}
-	fmt.Println(request)
-	user, error := db.UpdateUser(request)
+	dto := model.UpdateToDTO(request)
+	user, error := db.UpdateUser(dto)
 	if error != nil {
 		return error
 	}

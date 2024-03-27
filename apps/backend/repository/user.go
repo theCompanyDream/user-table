@@ -33,28 +33,28 @@ func InitDB() {
 	}
 }
 
-func GetUser(hashId string) (*model.User, error) {
+func GetUser(hashId string) (*model.UserDTO, error) {
 	// Assume URL like /users/{id}
-	var user *model.User
+	var user model.UserDTO
 	query := squirrel.Select("HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		From("USERS").
 		Where(squirrel.Eq{"HASH": hashId}).
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
 
-	err := query.QueryRow().Scan(user.HashId, user.UserName, user.FirstName, user.LastName, user.Email, user.UserStatus, user.Department)
+	err := query.QueryRow().Scan(&user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return &user, nil
 }
 
-func GetUsers(search string, page, limit int) ([]model.User, error) {
+func GetUsers(search string, page, limit int) ([]model.UserDTO, error) {
 
 	// Check for potential overflow during multiplication
 
 	offset := uint64((page - 1) * limit)
-	users := []model.User{}
+	users := []model.UserDTO{}
 
 	query := squirrel.Select("HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		From("USERS")
@@ -79,7 +79,7 @@ func GetUsers(search string, page, limit int) ([]model.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var user model.User
+		var user model.UserDTO
 		if err := rows.Scan(&user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department); err != nil {
 			return nil, err
 		}
@@ -88,8 +88,8 @@ func GetUsers(search string, page, limit int) ([]model.User, error) {
 
 	return users, nil
 }
-func CreateUser(requestedUser model.User) (*model.User, error) {
-	var user model.User
+func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
+	var user model.UserDTO
 	id := uuid.New().String()
 	requestedUser.Id = &id
 	hash, err := model.HashObject(requestedUser)
@@ -113,12 +113,13 @@ func CreateUser(requestedUser model.User) (*model.User, error) {
 	return &user, nil
 }
 
-func UpdateUser(requestedUser model.User) (*model.User, error) {
+func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	// Grab the user to be updated
 	user, err := GetUser(*requestedUser.HashId)
 	if err != nil {
 		return nil, err
 	} else if user.Id == nil && *user.Id == "" {
+		fmt.Printf("user:%+v\n\nrequest%+v", *user, requestedUser)
 		return nil, errors.New("user Not Found")
 	}
 
@@ -150,7 +151,7 @@ func UpdateUser(requestedUser model.User) (*model.User, error) {
 		return nil, err
 	}
 	// clear the model
-	user = &model.User{}
+	user = &model.UserDTO{}
 
 	query = query.Set("HASH", hash).
 		Where(squirrel.Eq{"id": requestedUser.Id}).
@@ -162,7 +163,7 @@ func UpdateUser(requestedUser model.User) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = query.QueryRow().Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
+	err = query.QueryRow().Scan(user.Id, user.HashId, user.UserName, user.FirstName, user.LastName, user.Email, user.UserStatus, user.Department)
 	if err != nil {
 		return nil, err
 	}
