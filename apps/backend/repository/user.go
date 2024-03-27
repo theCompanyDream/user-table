@@ -36,13 +36,13 @@ func InitDB() {
 func GetUser(hashId string) (*model.UserDTO, error) {
 	// Assume URL like /users/{id}
 	var user model.UserDTO
-	query := squirrel.Select("HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
+	query := squirrel.Select("Id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		From("USERS").
 		Where(squirrel.Eq{"HASH": hashId}).
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
 
-	err := query.QueryRow().Scan(&user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
+	err := query.QueryRow().Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func GetUsers(search string, page, limit int) ([]model.UserDTO, error) {
 	offset := uint64((page - 1) * limit)
 	users := []model.UserDTO{}
 
-	query := squirrel.Select("HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
+	query := squirrel.Select("Id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		From("USERS")
 
 	if search != "" {
@@ -80,7 +80,7 @@ func GetUsers(search string, page, limit int) ([]model.UserDTO, error) {
 
 	for rows.Next() {
 		var user model.UserDTO
-		if err := rows.Scan(&user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department); err != nil {
+		if err := rows.Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department); err != nil {
 			return nil, err
 		}
 		users = append(users, user)
@@ -119,42 +119,43 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	if err != nil {
 		return nil, err
 	} else if user.Id == nil && *user.Id == "" {
-		fmt.Printf("user:%+v\n\nrequest%+v", *user, requestedUser)
-		return nil, errors.New("user Not Found")
+		return nil, errors.New("user not Found")
 	}
 
 	query := squirrel.Update("USERS")
 
 	if requestedUser.Department != nil && *requestedUser.Department != "" {
 		user.Department = requestedUser.Department
-		query = query.Set("DEPARTMENT", requestedUser.Department)
+		query = query.Set("DEPARTMENT", *requestedUser.Department)
 	}
 	if requestedUser.FirstName != nil && *requestedUser.FirstName != "" {
 		user.FirstName = requestedUser.FirstName
-		query = query.Set("FIRST_NAME", requestedUser.FirstName)
+		query = query.Set("FIRST_NAME", *requestedUser.FirstName)
 	}
 	if requestedUser.LastName != nil && *requestedUser.LastName != "" {
 		user.LastName = requestedUser.LastName
-		query = query.Set("LAST_NAME", requestedUser.LastName)
+		query = query.Set("LAST_NAME", *requestedUser.LastName)
 	}
 	if requestedUser.Email != nil && *requestedUser.Email != "" {
 		user.Email = requestedUser.Email
-		query = query.Set("EMAIL", requestedUser.Email)
+		query = query.Set("EMAIL", *requestedUser.Email)
 	}
 	if requestedUser.UserStatus != nil && *requestedUser.UserStatus != "" {
 		user.UserStatus = requestedUser.UserStatus
-		query = query.Set("USER_STATUS", requestedUser.UserStatus)
+		query = query.Set("USER_STATUS", *requestedUser.UserStatus)
 	}
 
 	hash, err := model.HashObject(user)
 	if err != nil {
 		return nil, err
 	}
+	//Move id before we clear model
+	*requestedUser.Id = *user.Id
 	// clear the model
 	user = &model.UserDTO{}
 
-	query = query.Set("HASH", hash).
-		Where(squirrel.Eq{"id": requestedUser.Id}).
+	query = query.Set("HASH", *hash).
+		Where(squirrel.Eq{"ID": requestedUser.Id}).
 		Suffix("RETURNING ID, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
@@ -163,7 +164,7 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = query.QueryRow().Scan(user.Id, user.HashId, user.UserName, user.FirstName, user.LastName, user.Email, user.UserStatus, user.Department)
+	err = query.QueryRow().Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
 	if err != nil {
 		return nil, err
 	}

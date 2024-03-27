@@ -26,15 +26,15 @@ type UserUpdate struct {
 	// HashId is the public identifier for the user
 	HashId *string `json:"id" param:"id"` // HashId is a UUID
 	// UserName is the user's username, between 5 and 50 characters
-	UserName *string `json:"user_name" validate:"min=5,max=50,omitempty" form:"user_name"`
+	UserName *string `json:"user_name" validate:"omitempty,min=5,max=50" form:"user_name"`
 	// FirstName is the user's first name, between 5 and 50 characters
-	FirstName *string `json:"first_name" validate:"min=3,max=255,omitempty" form:"first_name"`
+	FirstName *string `json:"first_name" validate:"omitempty,min=3,max=255" form:"first_name"`
 	// LastName is the user's last name, between 5 and 50 characters
-	LastName *string `json:"last_name" validate:"min=3,max=255,omitempty" form:"last_name"` // Corrected validate tag
+	LastName *string `json:"last_name" validate:"omitempty,min=3,max=255" form:"last_name"` // Corrected validate tag
 	// Email is the user's email address, must be a valid email format
-	Email *string `json:"email" validate:"email,max=255,omitempty" form:"email"`
+	Email *string `json:"email" validate:"omitempty,email,max=255" form:"email"`
 	// UserStatus is the user's status, must be exactly 1 character and contain "IAT"
-	UserStatus *string `json:"user_status" validate:"oneof=I A T" form:"user_status"`
+	UserStatus *string `json:"user_status" validate:"omitempty,oneof=I A T" form:"user_status"`
 	// Department is the user's department, can be null
 	Department *string `json:"department" form:"department"`
 }
