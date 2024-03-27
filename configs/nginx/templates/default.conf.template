@@ -1,7 +1,3 @@
-upstream ssl {
-	server 127.0.0.1:${HTTP_PORT};
-}
-
 server {
 	listen ${HTTP_PORT};
 	listen [::]:${HTTP_PORT};
@@ -9,10 +5,10 @@ server {
 	server_name ${MAIN_DOMAIN};
 
 	location / {
-		proxy_pass http://${FRONTEND_DOMAIN}:${FRONTEND_PORT};
+		proxy_pass http://${FRONTEND_NAME}:${FRONTEND_PORT};
 	}
 
     location /api {
-		proxy_pass http://${API_DOMAIN}:${API_PORT};
+		proxy_pass http://${BACKEND_NAME}:${BACKEND_PORT};
     }
 }
