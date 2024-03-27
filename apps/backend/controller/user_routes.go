@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -33,7 +32,7 @@ func GetUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusFound, user)
+	return c.JSON(http.StatusOK, user)
 }
 
 // GetUsers godoc
@@ -64,12 +63,11 @@ func GetUsers(c echo.Context) error {
 	} else {
 		page = 1
 	}
-	fmt.Printf("page: %d limit: %d\n", page, limit)
 	users, error := db.GetUsers(search, page, limit)
 	if error != nil {
 		return error
 	}
-	return c.JSON(http.StatusFound, users)
+	return c.JSON(http.StatusOK, users)
 }
 
 // CreateUser godoc

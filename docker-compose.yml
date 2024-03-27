@@ -34,7 +34,7 @@ services:
       - 5432:5432
     volumes:
       # - ./.db-data:/var/lib/postgresql/data
-      - ./configs/sql:/docker-entrypoint-initdb.d
+      - ./configs/scripts:/docker-entrypoint-initdb.d:rwx
     environment:
       # Beware of special characters in password that can be interpreted by shell
       POSTGRES_DB: ${DATABASE_NAME}
@@ -66,7 +66,6 @@ services:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
     depends_on:
       - ${BACKEND_NAME}
-      - ${PROXY_NAME}
     env_file:
       - .env
     build:

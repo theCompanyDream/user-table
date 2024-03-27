@@ -1,1 +1,39 @@
-<p>user-module works!</p>
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
+
+	<mat-form-field appearance="fill">
+	  <mat-label>User Name</mat-label>
+	  <input matInput type="text" formControlName="user_name">
+	</mat-form-field>
+
+	<mat-form-field appearance="fill">
+	  <mat-label>Email</mat-label>
+	  <input matInput type="email" formControlName="email">
+	</mat-form-field>
+
+	<mat-form-field appearance="fill">
+	  <mat-label>First Name</mat-label>
+	  <input matInput type="text" formControlName="first_name">
+	</mat-form-field>
+
+	<mat-form-field appearance="fill">
+	  <mat-label>Last Name</mat-label>
+	  <input matInput type="text" formControlName="last_name">
+	</mat-form-field>
+
+	<mat-form-field appearance="fill">
+	  <mat-label>User Status</mat-label>
+	  <select matNativeControl formControlName="user_status" required>
+		<option value="" disabled>Choose Status</option>
+		<option value="I">I</option>
+		<option value="A">A</option>
+		<option value="T">T</option>
+	  </select>
+	</mat-form-field>
+
+	<mat-form-field appearance="fill">
+	  <mat-label>Department</mat-label>
+	  <input matInput type="text" formControlName="department">
+	</mat-form-field>
+
+	<button mat-raised-button color="primary" type="submit">Submit</button>
+  </form>

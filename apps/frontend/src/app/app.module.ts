@@ -2,8 +2,10 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 // Material Ui
 import {MatMenuModule} from '@angular/material/menu';
-import {MatButtonModule} from '@angular/material/button';
 import { HttpClientModule } from '@angular/common/http';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -19,7 +21,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
     NoopAnimationsModule,
     MatButtonModule,
     MatMenuModule,
-    HttpClientModule
+    HttpClientModule,
+    MatInputModule,
+    MatFormFieldModule
   ],
   bootstrap: [AppComponent]
 })
