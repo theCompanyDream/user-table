@@ -1,7 +1,7 @@
 version: '3.9'
 
 networks:
-  turbo-network:
+  app-nework:
     driver: bridge
 
 services:
@@ -9,33 +9,32 @@ services:
     container_name: ${PROXY_NAME}
     restart: always
     image: nginx:alpine
+    depends_on:
+      - ${BACKEND_NAME}
+      - ${FRONTEND_NAME}
     env_file:
       - .env
     # command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     networks:
-      - turbo-network
+      - app-nework
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./configs/nginx/templates:/etc/nginx/templates:rw
       - ./configs/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./configs/nginx/proxy.conf:/etc/nginx/proxy.conf
-      - ./configs/nginx/security.conf:/etc/nginx/security.conf
-      - ./.certs:/etc/ssl/certs
     ports:
       - ${HTTP_PORT}:80
-      - ${SSL_PORT}:443
 
   db:
     container_name: ${DATABASE_HOST}
     image: postgres
-    profiles:
-      - development
     networks:
-      - turbo-network
+      - app-nework
     ports:
       - 5432:5432
     volumes:
-      - ./.db-data:/var/lib/postgresql/data
+      # - ./.db-data:/var/lib/postgresql/data
+      - ./configs/scripts:/docker-entrypoint-initdb.d:rwx
     environment:
       # Beware of special characters in password that can be interpreted by shell
       POSTGRES_DB: ${DATABASE_NAME}
@@ -43,3 +42,36 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_ROOT_PASSWORD: ${DATABASE_PASSWORD}
     restart: unless-stopped
+
+  api:
+    container_name: ${BACKEND_NAME}
+    command: ["go", "run", "main.go"]
+    networks:
+      - app-nework
+    depends_on:
+      - ${DATABASE_HOST}
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    env_file:
+      - .env
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./apps/backend:/opt/app:rw
+
+  web:
+    container_name: ${FRONTEND_NAME}
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    depends_on:
+      - ${BACKEND_NAME}
+    env_file:
+      - .env
+    build:
+      context: ./apps/frontend/
+      dockerfile: Dockerfile
+    volumes:
+      - ./apps/frontend/src:/opt/app/src
+    networks:
+      - app-nework
