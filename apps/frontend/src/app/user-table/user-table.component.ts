@@ -1,4 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
 import {MatButtonModule} from '@angular/material/button';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTableModule } from '@angular/material/table';
@@ -10,7 +12,7 @@ import { User } from "../user/user";
   selector: 'user-table',
   templateUrl: './user-table.component.html',
   styleUrls: ['./user-table.component.scss'],
-  imports: [MatTableModule, MatButtonModule],
+  imports: [MatTableModule, MatButtonModule, RouterModule],
   providers: [UserService],
   standalone: true
 })

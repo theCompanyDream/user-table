@@ -24,7 +24,7 @@ type UserCreate struct {
 type UserUpdate struct {
 	Id *string `json:"-"` // This field will be ignored by Swagger as it's unexported (private)
 	// HashId is the public identifier for the user
-	HashId *string `json:"id" param:"id"` // HashId is a UUID
+	HashId *string `json:"id" path:"id"` // HashId is a UUID
 	// UserName is the user's username, between 5 and 50 characters
 	UserName *string `json:"user_name" validate:"omitempty,min=5,max=50" form:"user_name"`
 	// FirstName is the user's first name, between 5 and 50 characters

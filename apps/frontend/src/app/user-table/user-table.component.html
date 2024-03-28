@@ -42,7 +42,8 @@
 	<ng-container matColumnDef="id">
 		<th mat-header-cell *matHeaderCellDef>Actions</th>
 		<td mat-cell *matCellDef="let element">
-			<a mat-button href="https://www.google.com/" target="_blank">Link</a>
+			<a mat-raised-button [routerLink]="['/user', element.id]">Edit</a>
+
 			<button mat-raised-button color="warn" (click)="deleteUser(element.id)">Delete</button>
 		</td>
 	</ng-container>

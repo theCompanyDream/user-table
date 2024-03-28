@@ -50,34 +50,27 @@ func GetUser(hashId string) (*model.UserDTO, error) {
 }
 
 func GetUsers(search string, page, limit int) ([]model.UserDTO, error) {
-
 	// Check for potential overflow during multiplication
-
 	offset := uint64((page - 1) * limit)
 	users := []model.UserDTO{}
-
 	query := squirrel.Select("Id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		From("USERS")
 
 	if search != "" {
 		query = query.Where("USER_NAME LIKE ?", "%"+search+"%")
 	}
-
 	// Note: there was a weird bug that if offset was 0 it overflowed the buffer and made offset this obsurb number
 	if offset != math.MaxUint64 {
 		query = query.Offset(offset)
 	}
-
 	query = query.Limit(uint64(limit)).
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
-
 	rows, err := query.Query()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
 	for rows.Next() {
 		var user model.UserDTO
 		if err := rows.Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department); err != nil {
@@ -85,7 +78,6 @@ func GetUsers(search string, page, limit int) ([]model.UserDTO, error) {
 		}
 		users = append(users, user)
 	}
-
 	return users, nil
 }
 func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
@@ -123,7 +115,6 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	}
 
 	query := squirrel.Update("USERS")
-
 	if requestedUser.Department != nil && *requestedUser.Department != "" {
 		user.Department = requestedUser.Department
 		query = query.Set("DEPARTMENT", *requestedUser.Department)
@@ -149,13 +140,13 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(user)
 	//Move id before we clear model
-	*requestedUser.Id = *user.Id
+	requestedUser.Id = user.Id
 	// clear the model
 	user = &model.UserDTO{}
-
 	query = query.Set("HASH", *hash).
-		Where(squirrel.Eq{"ID": requestedUser.Id}).
+		Where(squirrel.Eq{"ID": *requestedUser.Id}).
 		Suffix("RETURNING ID, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
@@ -177,7 +168,6 @@ func DeleteUser(id string) error {
 		Where(squirrel.Eq{"HASH": id}).
 		PlaceholderFormat(squirrel.Dollar).
 		RunWith(db)
-
 	_, err := query.Exec()
 	if err != nil {
 		return err
