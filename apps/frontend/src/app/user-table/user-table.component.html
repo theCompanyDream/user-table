@@ -1,7 +1,11 @@
+<mat-form-field appearance="fill">
+	<mat-label>Search</mat-label>
+	<input matInput (input)="getQuery($event)" placeholder="search users" formControlName="search">
+</mat-form-field>
+
 <table mat-table [dataSource]="users" class="mat-elevation-z8">
 	<!--- Note that these columns can be defined in any order.
 		  The actual rendered columns are set as a property on the row definition" -->
-
 	<!-- UserName Column -->
 	<ng-container matColumnDef="user_name">
 	  <th mat-header-cell *matHeaderCellDef>UserName</th>
@@ -51,3 +55,5 @@
 	<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 	<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
+
+<mat-paginator [pageSizeOptions]="[10, 25, 50, 75, 100]" showFirstLastButtons></mat-paginator>

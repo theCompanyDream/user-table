@@ -32,3 +32,10 @@ $light-theme: mat.define-light-theme((
  @include mat.core-color($light-theme);
  @include mat.button-color($light-theme);
 }
+
+/* app-header.component.scss or app-header.component.css */
+mat-toolbar {
+  .spacer {
+    flex: 1 1 auto;
+  }
+}

@@ -1,8 +1,13 @@
-<header>
-	<button mat-button [matMenuTriggerFor]="menu">User App</button>
-</header>
-<mat-menu #menu="matMenu">
-	<button mat-menu-item>Create User</button>
-</mat-menu>
+<!-- app-header.component.html -->
+<mat-toolbar color="primary">
+	<span>
+	<a mat-raised-button [routerLink]="['/']">
+	  	<img src="/assets/logo.png" alt="Logo" style="height: 50px;">
+	  </a>
+	</span>
+	<span class="spacer"></span>
+	<button mat-button>About</button>
+	<a mat-button [routerLink]="['/user']">Create</a>
+</mat-toolbar>
 <router-outlet></router-outlet>
 <footer></footer>

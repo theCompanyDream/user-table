@@ -1,3 +1,5 @@
+<h1 class="mat-h1 content-center">{{userId ? "Edit" : "Create"}}</h1>
+
 <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
 
 	<mat-form-field appearance="fill">
@@ -35,5 +37,5 @@
 	  <input matInput type="text" formControlName="department">
 	</mat-form-field>
 
-	<button mat-raised-button color="primary" type="submit">Submit</button>
+	<button mat-raised-button color="primary" [disabled]="userForm.invalid" type="submit">Submit</button>
   </form>
