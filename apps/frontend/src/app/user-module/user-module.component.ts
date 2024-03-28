@@ -23,7 +23,7 @@ export class UserModuleComponent implements OnInit, OnDestroy {
     user_name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
     last_name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]),
     first_name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]),
-    email: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     user_status: new FormControl('',[Validators.required, Validators.maxLength(1), Validators.pattern(/^[IAT]$/)]),
     department: new FormControl('')
   })
