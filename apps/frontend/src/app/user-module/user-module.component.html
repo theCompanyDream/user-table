@@ -1,41 +1,53 @@
-<h1 class="mat-h1 content-center">{{userId ? "Edit" : "Create"}}</h1>
+<h1 class="mat-h1 content-center">{{ userId ? "Edit" : "Create" }} User</h1>
 
 <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
+  <mat-form-field appearance="fill">
+    <mat-label>User Name</mat-label>
+    <input matInput type="text" formControlName="user_name">
+    <mat-error ngIf="userForm.get('user_name').errors?.required">User name is required.</mat-error>
+    <mat-error ngIf="userForm.get('user_name').errors?.minlength">User name must be at least 3 characters long.</mat-error>
+    <mat-error ngIf="userForm.get('user_name').errors?.maxlength">User name cannot exceed 50 characters.</mat-error>
+  </mat-form-field>
 
-	<mat-form-field appearance="fill">
-	  <mat-label>User Name</mat-label>
-	  <input matInput type="text" formControlName="user_name">
-	</mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" formControlName="email">
+    <mat-error ngIf="userForm.get('email').errors?.required">Email is required.</mat-error>
+    <mat-error ngIf="userForm.get('email').errors?.email">Please enter a valid email address.</mat-error>
+  </mat-form-field>
 
-	<mat-form-field appearance="fill">
-	  <mat-label>Email</mat-label>
-	  <input matInput type="email" formControlName="email">
-	</mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>First Name</mat-label>
+    <input matInput type="text" formControlName="first_name">
+    <mat-error ngIf="userForm.get('first_name').errors?.required">First name is required.</mat-error>
+    <mat-error ngIf="userForm.get('first_name').errors?.minlength">First name must be at least 3 characters long.</mat-error>
+    <mat-error ngIf="userForm.get('first_name').errors?.maxlength">First name cannot exceed 255 characters.</mat-error>
+  </mat-form-field>
 
-	<mat-form-field appearance="fill">
-	  <mat-label>First Name</mat-label>
-	  <input matInput type="text" formControlName="first_name">
-	</mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Last Name</mat-label>
+    <input matInput type="text" formControlName="last_name">
+    <mat-error ngIf="userForm.get('last_name').errors?.required">Last name is required.</mat-error>
+    <mat-error ngIf="userForm.get('last_name').errors?.minlength">Last name must be at least 3 characters long.</mat-error>
+    <mat-error ngIf="userForm.get('last_name').errors?.maxlength">Last name cannot exceed 255 characters.</mat-error>
+  </mat-form-field>
 
-	<mat-form-field appearance="fill">
-	  <mat-label>Last Name</mat-label>
-	  <input matInput type="text" formControlName="last_name">
-	</mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>User Status</mat-label>
+    <select matNativeControl formControlName="user_status" required>
+      <option value="" disabled>Choose Status</option>
+      <option value="I">I</option>
+      <option value="A">A</option>
+      <option value="T">T</option>
+    </select>
+    <mat-error ngIf="userForm.get('user_status').errors?.required">User status is required.</mat-error>
+    <mat-error ngIf="userForm.get('user_status').errors?.pattern">User status must be I, A, or T.</mat-error>
+  </mat-form-field>
 
-	<mat-form-field appearance="fill">
-	  <mat-label>User Status</mat-label>
-	  <select matNativeControl formControlName="user_status" required>
-		<option value="" disabled>Choose Status</option>
-		<option value="I">I</option>
-		<option value="A">A</option>
-		<option value="T">T</option>
-	  </select>
-	</mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Department</mat-label>
+    <input matInput type="text" formControlName="department">
+  </mat-form-field>
 
-	<mat-form-field appearance="fill">
-	  <mat-label>Department</mat-label>
-	  <input matInput type="text" formControlName="department">
-	</mat-form-field>
-
-	<button mat-raised-button color="primary" [disabled]="userForm.invalid" type="submit">Submit</button>
-  </form>
+  <button mat-raised-button color="primary" [disabled]="userForm.invalid" type="submit">Submit</button>
+</form>
