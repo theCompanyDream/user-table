@@ -7,6 +7,7 @@ Welcome to the User Test repository! This repository is a comprehensive setup fo
 - **Go 1.22**: A popular programming language designed for simplicity and efficiency.
 - **Angular 16**: A platform for building mobile and desktop web applications using TypeScript/JavaScript.
 - **Docker**: A set of platform-as-a-service products that use OS-level virtualization to deliver software in packages called containers.
+- **Makefile**: used to run basic site dev functionality
 
 ## Getting Started
 
