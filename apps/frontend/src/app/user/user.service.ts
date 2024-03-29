@@ -12,10 +12,10 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   getUsers(search: string, limit: number, page: number): Observable<any> {
-    return this.http.get(`${this.hostUrl}/users?search=${search}&limit=${limit}&page=${page}`)
+    return this.http.get<User>(`${this.hostUrl}/users?search=${search}&limit=${limit}&page=${page}`)
   }
 
-  getUser(id: number): Observable<any>{
+  getUser(id: string): Observable<any>{
     return this.http.get(`${this.hostUrl}/user/${id}`)
   }
 
@@ -23,11 +23,11 @@ export class UserService {
     return this.http.post(`${this.hostUrl}/user`, user)
   }
 
-  updateUser(id: number, user: User): Observable<any>{
-    return this.http.put(`${this.hostUrl}/user`, user)
+  updateUser(id: string, user: User): Observable<any>{
+    return this.http.put(`${this.hostUrl}/user/${id}`, user)
   }
 
-  deleteUser(id: number): Observable<any>{
+  deleteUser(id: string): Observable<any>{
     return this.http.delete(`${this.hostUrl}/user/${id}`)
   }
 }

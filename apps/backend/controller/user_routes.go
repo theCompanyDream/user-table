@@ -19,7 +19,7 @@ import (
 // @Produce json
 // @Param id path string false "User ID"
 // @Param user_name path string false "Username"
-// @Success 302 {object} models.User "User Found"
+// @Success 302 {object} models.UserDTO "User Found"
 // @Failure 400 {object} object "Bad Request"
 // @Router /user/{id} [get]
 func GetUser(c echo.Context) error {
@@ -44,7 +44,7 @@ func GetUser(c echo.Context) error {
 // @Param search query string false "Search Term"
 // @Param limit query int false "Limit"
 // @Param page query int false "Page Number"
-// @Success 302 {object} []models.User "Users Found"
+// @Success 302 {object} []models.UserDTO "Users Found"
 // @Failure 400 {object} object "Bad Request"
 // @Router /users [get]
 func GetUsers(c echo.Context) error {
@@ -76,7 +76,7 @@ func GetUsers(c echo.Context) error {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param user body UserCreate true "User object"
+// @Param user body models.UserCreate true "User object"
 // @Success 201 {object} models.UserDTO "User Created"
 // @Failure 400 {object} object "Bad Request"
 // @Router /user [post]
@@ -107,7 +107,7 @@ func CreateUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Param user body UserUpdate true "User object"
+// @Param user body models.UserUpdate true "User object"
 // @Success 200 {object} models.UserDTO "User Updated"
 // @Failure 400 {object} object "Bad Request"
 // @Router /user/{id} [put]
