@@ -8,10 +8,18 @@
 	// Style for the form fields
 	mat-form-field {
 	  width: 100%; // Full width fields
-	  margin-bottom: 16px; // Add some space below each field
+	  margin-bottom: 25px; // Add some space below each field
 	}
 
 	button {
 	  margin-top: 20px; // Space above the submit button
 	}
   }
+
+/* styles.css or styles.scss */
+.content-center {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 0.5rem;
+}

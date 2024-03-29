@@ -21,14 +21,3 @@ func HttpErrorHandler(err error, c echo.Context) {
 		}
 	}
 }
-
-func CustomLogger(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		err := next(c)
-		if err != nil {
-			c.Error(err)
-			log.Errorf("Error: %v", err) // Customize this as per your needs
-		}
-		return nil
-	}
-}
