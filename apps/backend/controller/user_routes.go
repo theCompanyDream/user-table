@@ -44,7 +44,7 @@ func GetUser(c echo.Context) error {
 // @Param search query string false "Search Term"
 // @Param limit query int false "Limit"
 // @Param page query int false "Page Number"
-// @Success 302 {object} []models.UserDTO "Users Found"
+// @Success 302 {object} []models.UserDTOPaging "Users Found"
 // @Failure 400 {object} object "Bad Request"
 // @Router /users [get]
 func GetUsers(c echo.Context) error {
