@@ -70,6 +70,24 @@ definitions:
           and contain "IAT"
         type: string
     type: object
+  models.UserDTOPaging:
+    description: UserDTOPaging
+    properties:
+      length:
+        description: The total number of items available
+        type: integer
+      page:
+        description: The current page number
+        type: integer
+      page_size:
+        description: The number of items per page
+        type: integer
+      users:
+        description: A list of users
+        items:
+          $ref: '#/definitions/models.UserDTO'
+        type: array
+    type: object
   models.UserUpdate:
     properties:
       department:
@@ -242,7 +260,7 @@ paths:
           description: Users Found
           schema:
             items:
-              $ref: '#/definitions/models.UserDTO'
+              $ref: '#/definitions/models.UserDTOPaging'
             type: array
         "400":
           description: Bad Request

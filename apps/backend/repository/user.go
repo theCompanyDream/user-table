@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"os"
 
 	"github.com/Masterminds/squirrel"
@@ -49,19 +48,20 @@ func GetUser(hashId string) (*model.UserDTO, error) {
 	return &user, nil
 }
 
-func GetUsers(search string, page, limit int) ([]model.UserDTO, error) {
+func GetUsers(search string, page, limit int) (*model.UserDTOPaging, error) {
 	// Check for potential overflow during multiplication
-	offset := uint64((page - 1) * limit)
-	users := []model.UserDTO{}
-	query := squirrel.Select("Id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
+	offset := (page - 1) * limit
+	users := model.UserDTOPaging{}
+	query := squirrel.Select("Id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT, COUNT(*) OVER() AS total_count").
 		From("USERS")
 
 	if search != "" {
 		query = query.Where("USER_NAME LIKE ?", "%"+search+"%")
 	}
-	// Note: there was a weird bug that if offset was 0 it overflowed the buffer and made offset this obsurb number
-	if offset != math.MaxUint64 {
-		query = query.Offset(offset)
+	// Note: there was a weird bug that if offset was 0 it overflowed the buffer and made offset this absurd number
+	fmt.Println(offset)
+	if offset > 0 {
+		query = query.Offset(uint64(offset))
 	}
 	query = query.Limit(uint64(limit)).
 		PlaceholderFormat(squirrel.Dollar).
@@ -73,13 +73,19 @@ func GetUsers(search string, page, limit int) ([]model.UserDTO, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var user model.UserDTO
-		if err := rows.Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department); err != nil {
+		var totalCount int
+		if err := rows.Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department, &totalCount); err != nil {
 			return nil, err
 		}
-		users = append(users, user)
+		users.Users = append(users.Users, user)
+		// Total count will be the same for all rows, so we can just set it once
+		users.Length = &totalCount
 	}
-	return users, nil
+	users.Page = &page
+	users.PageSize = &limit
+	return &users, nil
 }
+
 func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	var user model.UserDTO
 	id := uuid.New().String()

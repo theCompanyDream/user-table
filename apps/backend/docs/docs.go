@@ -218,7 +218,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.UserDTO"
+                                "$ref": "#/definitions/models.UserDTOPaging"
                             }
                         }
                     },
@@ -316,6 +316,31 @@ const docTemplate = `{
                 "user_status": {
                     "description": "UserStatus is the user's status, must be exactly 1 character and contain \"IAT\"",
                     "type": "string"
+                }
+            }
+        },
+        "models.UserDTOPaging": {
+            "description": "UserDTOPaging",
+            "type": "object",
+            "properties": {
+                "length": {
+                    "description": "The total number of items available",
+                    "type": "integer"
+                },
+                "page": {
+                    "description": "The current page number",
+                    "type": "integer"
+                },
+                "page_size": {
+                    "description": "The number of items per page",
+                    "type": "integer"
+                },
+                "users": {
+                    "description": "A list of users",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserDTO"
+                    }
                 }
             }
         },
