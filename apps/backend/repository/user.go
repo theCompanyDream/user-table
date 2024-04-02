@@ -56,7 +56,12 @@ func GetUsers(search string, page, limit int) (*model.UserDTOPaging, error) {
 		From("USERS")
 
 	if search != "" {
-		query = query.Where("USER_NAME LIKE ?", "%"+search+"%")
+		query = query.Where(squirrel.Or{
+			squirrel.Like{"USER_NAME": "%" + search + "%"},
+			squirrel.Like{"FIRST_NAME": "%" + search + "%"},
+			squirrel.Like{"LAST_NAME": "%" + search + "%"},
+			squirrel.Like{"EMAIL": search + "%"},
+		})
 	}
 	// Note: there was a weird bug that if offset was 0 it overflowed the buffer and made offset this absurd number
 	fmt.Println(offset)
