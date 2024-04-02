@@ -71,6 +71,7 @@ export class UserTableComponent implements OnInit {
         // Remove the item from the array upon successful deletion
         const newData = this.users.data.filter(user => user.id !== userId);
         this.users.data = newData
+        this.length--
       },
       error: (error) => {
         // Handle error
