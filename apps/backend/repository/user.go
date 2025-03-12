@@ -27,6 +27,7 @@ func GetPostgresConnectionString() string {
 func InitDB() {
 	var err error
 	connectStr := GetPostgresConnectionString()
+	fmt.Println(connectStr)
 
 	db, err = sql.Open("postgres", connectStr)
 	if err != nil {
