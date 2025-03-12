@@ -24,6 +24,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	// Routes
 	server.GET("/", controller.GetUsers)
+	server.GET("/users", controller.GetUsers)
 	server.GET("/user/:id", controller.GetUser)
 	server.POST("/user", controller.CreateUser)
 	server.PUT("/user/:id", controller.UpdateUser)
