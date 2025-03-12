@@ -16,9 +16,7 @@ var echoLambda *echoadapter.EchoLambda
 // Handler is the AWS Lambda handler function.
 func HandlerHandler(w http.ResponseWriter, r *http.Request) {
 	// Initialize the Echo server
-	if err := repository.InitDB(); err != nil {
-		panic("Failed to initialize database: " + err.Error())
-	}
+	repository.InitDB()
 
 	// Create a new Echo server
 	server := echo.New()
