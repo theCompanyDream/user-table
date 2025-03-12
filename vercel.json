@@ -6,7 +6,7 @@
 		"use": "@vercel/go"
 	  },
 	  {
-		"src": "apps/frontend/angular.json",
+		"src": "apps/frontend",
 		"use": "@vercel/angular"
 	  }
 	],
