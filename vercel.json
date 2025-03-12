@@ -2,13 +2,22 @@
 	"version": 2,
 	"builds": [
 	  {
-		"src": "index.go",
+		"src": "api/*.go",
 		"use": "@vercel/go"
+	  },
+	  {
+		"src": "apps/frontend/angular.json",
+		"use": "@vercel/angular"
 	  }
 	],
 	"routes": [
 	  {
-		"src": "/api/(.*)", "dest": "api/$1"
+		"src": "/api/(.*)",
+		"dest": "api/$1"
+	  },
+	  {
+		"src": "/(.*)",
+		"dest": "apps/frontend/$1"
 	  }
 	]
-}
+  }
