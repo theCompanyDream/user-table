@@ -11,7 +11,7 @@ import (
 )
 
 // Handler is the AWS Lambda handler function.
-func HandlerHandler(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	// Initialize the Echo server
 	repository.InitDB()
 
