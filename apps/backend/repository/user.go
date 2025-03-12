@@ -17,14 +17,17 @@ import (
 var db *sql.DB
 
 func GetPostgresConnectionString() string {
-	connectStr := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", os.Getenv("DATABASE_USERNAME"), os.Getenv("DATABASE_PASSWORD"), os.Getenv("DATABASE_HOST"), os.Getenv("DATABASE_NAME"))
-
-	return connectStr
+	connectStr := os.Getenv("POSTGRES_URL")
+	if connectStr != "" {
+		return connectStr
+	}
+	return fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", os.Getenv("DATABASE_USERNAME"), os.Getenv("DATABASE_PASSWORD"), os.Getenv("DATABASE_HOST"), os.Getenv("DATABASE_NAME"))
 }
 
 func InitDB() {
 	var err error
 	connectStr := GetPostgresConnectionString()
+	fmt.Println(connectStr)
 
 	db, err = sql.Open("postgres", connectStr)
 	if err != nil {
