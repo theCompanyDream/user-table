@@ -8,7 +8,7 @@
 	  {
 		"src": "apps/frontend/package.json",
 		"use": "@vercel/static-build",
-		"config": { "distDir": "dist/user-angular" }
+		"config": { "distDir": "dist/frontend" }
 	  }
 	],
 	"routes": [
@@ -18,7 +18,7 @@
 	  },
 	  {
 		"src": "/(.*)",
-		"dest": "apps/frontend/dist/user-angular/$1"
+		"dest": "apps/frontend/dist/frontend/$1"
 	  }
 	]
   }
