@@ -5,7 +5,6 @@ go 1.21
 toolchain go1.24.1
 
 require (
-	github.com/aws/aws-lambda-go v1.47.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/theCompanyDream/user-angular/apps/backend v0.0.0-20250311170655-bd7e8d434c85
@@ -13,6 +12,7 @@ require (
 
 require (
 	github.com/Masterminds/squirrel v1.5.4 // indirect
+	github.com/aws/aws-lambda-go v1.47.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
