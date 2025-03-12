@@ -6,8 +6,9 @@
 		"use": "@vercel/go"
 	  },
 	  {
-		"src": "apps/frontend/angular.json",
-		"use": "@vercel/angular"
+		"src": "apps/frontend/package.json",
+		"use": "@vercel/static-build",
+		"config": { "distDir": "dist/user-angular" }
 	  }
 	],
 	"routes": [
@@ -17,7 +18,7 @@
 	  },
 	  {
 		"src": "/(.*)",
-		"dest": "apps/frontend/$1"
+		"dest": "apps/frontend/dist/user-angular/$1"
 	  }
 	]
   }
