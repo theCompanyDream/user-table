@@ -23,8 +23,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	server.Use(middleware.Logger())
 
 	// Routes
-	server.GET("/", controller.Home)
-	server.GET("/users", controller.GetUsers)
+	server.GET("/", controller.GetUsers)
 	server.GET("/user/:id", controller.GetUser)
 	server.POST("/user", controller.CreateUser)
 	server.PUT("/user/:id", controller.UpdateUser)
