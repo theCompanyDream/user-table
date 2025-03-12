@@ -2,8 +2,6 @@ module github.com/theCompanyDream/user-angular/apps/backend
 
 go 1.21
 
-toolchain go1.22.0
-
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/brpaz/echozap v1.1.3

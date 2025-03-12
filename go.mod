@@ -1,6 +1,8 @@
 module user-angular
 
-go 1.19
+go 1.21
+
+toolchain go1.24.1
 
 require (
 	github.com/labstack/echo/v4 v4.13.3
