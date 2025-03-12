@@ -32,6 +32,4 @@ func HandlerHandler(w http.ResponseWriter, r *http.Request) {
 	server.POST("/user", controller.CreateUser)
 	server.PUT("/user/:id", controller.UpdateUser)
 	server.DELETE("/user/:id", controller.DeleteUser)
-
-	return server
 }
