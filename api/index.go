@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -13,18 +12,24 @@ import (
 	"github.com/theCompanyDream/user-angular/apps/backend/repository"
 )
 
-func main() {
-	repository.InitDB()
-	server := echo.New()
+// Initialize the Echo server
+func initServer() *echo.Echo {
+	// Initialize the database
+	if err := repository.InitDB(); err != nil {
+		panic("Failed to initialize database: " + err.Error())
+	}
 
-	server.HTTPErrorHandler = controller.HttpErrorHandler
+	// Create a new Echo server
+	server := echo.New()
 
 	// Middleware
 	server.Use(middleware.Recover())
 	server.Use(middleware.Logger())
 
-	// failsafe in case normal requests don't work for you
+	// Swagger documentation
 	server.GET("/swagger", echoSwagger.WrapHandler)
+
+	// Routes
 	server.GET("/", controller.Home)
 	server.GET("/users", controller.GetUsers)
 	server.GET("/user/:id", controller.GetUser)
@@ -32,22 +37,14 @@ func main() {
 	server.PUT("/user/:id", controller.UpdateUser)
 	server.DELETE("/user/:id", controller.DeleteUser)
 
-	// have proxy requests work
-	api := server.Group("/api")
-	api.GET("/swagger/*", echoSwagger.WrapHandler)
-	api.GET("/", controller.Home)
-	api.GET("/users", controller.GetUsers)
-	api.GET("/user/:id", controller.GetUser)
-	api.POST("/user", controller.CreateUser)
-	api.PUT("/user/:id", controller.UpdateUser)
-	api.DELETE("/user/:id", controller.DeleteUser)
+	return server
+}
 
-	server.Logger.Info("Server is running...")
-	port := os.Getenv("BACKEND_PORT")
-	if port != "" {
-		serverStartCode := fmt.Sprintf(":%s", port)
-		server.Logger.Fatal(server.Start(serverStartCode))
-	} else {
-		server.Logger.Fatal(server.Start(":3000"))
-	}
+// Vercel handler function
+func Handler(w http.ResponseWriter, r *http.Request) {
+	// Initialize the Echo server
+	server := initServer()
+
+	// Use Echo's ServeHTTP method to handle the request
+	server.ServeHTTP(w, r)
 }
