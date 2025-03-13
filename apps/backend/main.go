@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -23,8 +24,8 @@ func main() {
 	server.Use(middleware.Recover())
 	server.Use(middleware.Logger())
 
-	// failsafe in case normal requests don't work for you
-	server.GET("/swagger", echoSwagger.WrapHandler)
+	// Define main routes
+	server.GET("/swagger/*", echoSwagger.WrapHandler)
 	server.GET("/", controller.Home)
 	server.GET("/users", controller.GetUsers)
 	server.GET("/user/:id", controller.GetUser)
@@ -32,16 +33,35 @@ func main() {
 	server.PUT("/user/:id", controller.UpdateUser)
 	server.DELETE("/user/:id", controller.DeleteUser)
 
-	// have proxy requests work
-	api := server.Group("/api")
-	api.GET("/swagger/*", echoSwagger.WrapHandler)
-	api.GET("/", controller.Home)
-	api.GET("/users", controller.GetUsers)
-	api.GET("/user/:id", controller.GetUser)
-	api.POST("/user", controller.CreateUser)
-	api.PUT("/user/:id", controller.UpdateUser)
-	api.DELETE("/user/:id", controller.DeleteUser)
+	// Set up reverse proxy configuration
+	mainDomain := os.Getenv("MAIN_DOMAIN")
+	httpPort := os.Getenv("HTTP_PORT")
 
+	if mainDomain != "" && httpPort != "" {
+		proxyURL := fmt.Sprintf("http://%s:%s", mainDomain, httpPort)
+		proxyTarget, err := url.Parse(proxyURL)
+		if err != nil {
+			server.Logger.Fatalf("Failed to parse proxy URL: %v", err)
+		}
+
+		// Set up proxy middleware for the API group
+		targets := []*middleware.ProxyTarget{
+			{
+				URL: proxyTarget,
+			},
+		}
+
+		// Apply the proxy middleware only to specific paths that should be proxied
+		// You might need to adjust this based on your specific requirements
+		proxyGroup := server.Group("/proxy")
+		proxyGroup.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
+			Balancer: middleware.NewRoundRobinBalancer(targets),
+		}))
+	} else {
+		server.Logger.Warn("Proxy configuration not set: MAIN_DOMAIN or HTTP_PORT environment variables missing")
+	}
+
+	// Start the server
 	server.Logger.Info("Server is running...")
 	port := os.Getenv("BACKEND_PORT")
 	if port != "" {

@@ -5,9 +5,6 @@ ifeq ($(wildcard .env),)
 	@echo ".env file does not exist. Creating one."
 	cp .env.example .env
 	@echo "Created .env file."
-else
-	# .env file exists
-	@echo ".env file exists."
 endif
 
 dev:

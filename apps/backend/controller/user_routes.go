@@ -93,7 +93,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, validationErrorsToMap(validationErrors))
 	}
 	dto := model.CreateToDTO(request)
-	user, error := db.CreateUser(dto)
+	user, error := db.CreateUser(*dto)
 	if error != nil {
 		return error
 	}
@@ -128,7 +128,7 @@ func UpdateUser(c echo.Context) error {
 		request.HashId = &id
 	}
 	dto := model.UpdateToDTO(request)
-	user, error := db.UpdateUser(dto)
+	user, error := db.UpdateUser(*dto)
 	if error != nil {
 		return error
 	}
