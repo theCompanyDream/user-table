@@ -4,11 +4,11 @@ Welcome to the User Test repository! This repository is a comprehensive setup fo
 
 ## Technologies
 
-- **Go 1.22**: A popular programming language designed for simplicity and efficiency.
+- **Go 1.24**: A popular programming language designed for simplicity and efficiency.
 - **Angular 16**: A platform for building mobile and desktop web applications using TypeScript/JavaScript.
 - **Docker**: A set of platform-as-a-service products that use OS-level virtualization to deliver software in packages called containers.
 - **Makefile**: used to run basic site dev functionality
-- **Nginx**: used to host angular and the go server 
+- **Nginx**: used to host angular and the go server
 
 ## Getting Started
 
@@ -18,8 +18,8 @@ Before you begin, make sure you have Docker installed on your machine. If not, y
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/theCompanyDream/User-Test.git
-   cd User-Test
+   git clone https://github.com/theCompanyDream/User-Angular.git
+   cd User-Angular
    ```
 
 2. Check for the `.env` file:
