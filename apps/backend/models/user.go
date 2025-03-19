@@ -1,7 +1,8 @@
 package models
 
 import (
-    "github.com/jinzhu/copier"
+	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 )
 
 // User represents a user in the system
@@ -45,21 +46,26 @@ type UserUpdate struct {
 
 type UserDTO struct {
 	// Id is the internal database identifier; omit from JSON output.
-	Id *string `gorm:"column:ID" json:"-"`
-	// HashId is the public identifier for the user (UUID).
-	HashId *string `gorm:"column:HASH" json:"id"`
+	Id uuid.UUID `gorm:"column:id;type:uuid;primaryKey" json:"-"`
+	// HashId is the public identifier for the user (varchar(64)).
+	HashId string `gorm:"column:hash" json:"id"`
 	// UserName is the user's username, between 5 and 50 characters.
-	UserName *string `gorm:"column:USER_NAME" json:"user_name"`
+	UserName string `gorm:"column:user_name" json:"user_name"`
 	// FirstName is the user's first name, between 5 and 50 characters.
-	FirstName *string `gorm:"column:FIRST_NAME" json:"first_name"`
+	FirstName string `gorm:"column:first_name" json:"first_name"`
 	// LastName is the user's last name, between 5 and 50 characters.
-	LastName *string `gorm:"column:LAST_NAME" json:"last_name"`
+	LastName string `gorm:"column:last_name" json:"last_name"`
 	// Email is the user's email address, must be a valid email format.
-	Email *string `gorm:"column:EMAIL" json:"email"`
+	Email string `gorm:"column:email" json:"email"`
 	// UserStatus is the user's status, must be exactly 1 character and contain "IAT".
-	UserStatus *string `gorm:"column:USER_STATUS" json:"user_status"`
+	UserStatus string `gorm:"column:user_status" json:"user_status"`
 	// Department is the user's department, can be null.
-	Department *string `gorm:"column:DEPARTMENT" json:"department"`
+	Department *string `gorm:"column:department" json:"department"`
+}
+
+// TableName sets the table name for UserDTO to "users".
+func (UserDTO) TableName() string {
+	return "users"
 }
 
 func CreateToDTO(userCreate UserCreate) *UserDTO {
