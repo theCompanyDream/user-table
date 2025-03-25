@@ -70,5 +70,6 @@ func CreateToDTO(userCreate UserCreate) *UserDTO {
 func UpdateToDTO(userUpdate UserUpdate) *UserDTO {
 	var user UserDTO
 	copier.Copy(&user, &userUpdate)
+	user.Hash = *userUpdate.HashId
 	return &user
 }
