@@ -3,6 +3,7 @@ FROM golang:1.24.0-alpine
 
 # Install Air (requires git and build-base)
 RUN apk add --no-cache git build-base
+
 RUN go install github.com/air-verse/air@latest
 
 # Creates an app directory to hold your app’s source code

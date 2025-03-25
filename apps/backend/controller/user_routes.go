@@ -63,10 +63,11 @@ func GetUsers(c echo.Context) error {
 	} else {
 		page = 1
 	}
-	users, error := db.GetUsers(search, page, limit)
+	users, error := db.GetUsers(search, page, limit, c)
 	if error != nil {
 		return error
 	}
+	c.Logger().Info(users)
 	return c.JSON(http.StatusOK, users)
 }
 

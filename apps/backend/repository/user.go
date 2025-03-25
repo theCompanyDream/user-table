@@ -7,8 +7,10 @@ import (
 	"os"
 
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	model "github.com/theCompanyDream/user-angular/apps/backend/models"
 )
@@ -22,26 +24,47 @@ func GetPostgresConnectionString() string {
 	if connectStr != "" {
 		return connectStr
 	}
-	return fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable",
+
+	// More explicit connection string for Docker/internal network
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=UTC",
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("DATABASE_PORT"),
 		os.Getenv("DATABASE_USERNAME"),
 		os.Getenv("DATABASE_PASSWORD"),
-		os.Getenv("DATABASE_HOST"),
 		os.Getenv("DATABASE_NAME"))
 }
 
-// InitDB initializes the GORM DB connection.
 func InitDB() {
 	var err error
 	connectStr := GetPostgresConnectionString()
 	fmt.Println("Connecting to:", connectStr)
 
-	db, err = gorm.Open(postgres.Open(connectStr), &gorm.Config{})
+	// Add more verbose logging and configuration
+	db, err = gorm.Open(postgres.Open(connectStr), &gorm.Config{
+		// Add additional configurations
+		Logger: logger.Default.LogMode(logger.Info), // Enable detailed logging
+	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	// Optional: Automatically migrate your schema (if your model struct has the necessary tags)
-	// db.AutoMigrate(&model.UserDTO{})
+	// Test the connection
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Failed to get database: %v", err)
+	}
+
+	// Ping the database
+	if err := sqlDB.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
+	}
+
+	// Auto migrate with more detailed error handling
+	if err := db.AutoMigrate(&model.UserDTO{}); err != nil {
+		log.Fatalf("Failed to auto migrate: %v", err)
+	}
+
+	fmt.Println("Database connection successful")
 }
 
 // GetUser retrieves a user by its HASH column.
@@ -55,18 +78,22 @@ func GetUser(hashId string) (*model.UserDTO, error) {
 }
 
 // GetUsers retrieves a page of users that match a search criteria.
-func GetUsers(search string, page, limit int) (*model.UserDTOPaging, error) {
+func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPaging, error) {
 	var users []model.UserDTO
 	var totalCount int64
 
-	query := db.Table("users")
+	// Use db.Model instead of db.Table
+	query := db.Model(&model.UserDTO{})
+
 	if search != "" {
 		likeSearch := "%" + search + "%"
-		// Using ILIKE for case-insensitive matching in PostgreSQL.
-		query = query.Where("user_name ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ?", likeSearch, likeSearch, likeSearch, search+"%")
+		query = query.Where(
+			"user_name ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ?",
+			likeSearch, likeSearch, likeSearch, likeSearch,
+		)
 	}
 
-	// Count total matching records.
+	// Count total matching records
 	if err := query.Count(&totalCount).Error; err != nil {
 		return nil, err
 	}
@@ -76,12 +103,13 @@ func GetUsers(search string, page, limit int) (*model.UserDTOPaging, error) {
 		offset = 0
 	}
 
-	// Retrieve the users with pagination.
+	// Remove explicit Select, let GORM handle field mapping
 	if err := query.Offset(offset).Limit(limit).Find(&users).Error; err != nil {
 		return nil, err
 	}
 
-	// Convert totalCount to int (if your model expects an int pointer).
+	c.Logger().Info("Total users: %+v\n", users)
+
 	total := int(totalCount)
 	paging := model.Paging{
 		Page:     &page,
@@ -98,14 +126,14 @@ func GetUsers(search string, page, limit int) (*model.UserDTOPaging, error) {
 func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	// Generate a new UUID for the user.
 	id := uuid.New()
-	requestedUser.Id = id
+	requestedUser.ID = id
 
 	// Compute a hash for the user.
 	hash, err := model.HashObject(requestedUser)
 	if err != nil {
 		return nil, err
 	}
-	requestedUser.HashId = *hash
+	requestedUser.Hash = *hash
 
 	// Insert the record into the USERS table.
 	if err := db.Table("users").Create(&requestedUser).Error; err != nil {
@@ -118,10 +146,10 @@ func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	var user model.UserDTO
 	// Retrieve the user to be updated by its HASH.
-	if err := db.Table("users").Where("HASH = ?", requestedUser.HashId).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("hash LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
 		return nil, err
 	}
-	if user.Id == uuid.Nil {
+	if user.ID == uuid.Nil {
 		return nil, errors.New("user not found")
 	}
 
@@ -147,15 +175,15 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	if err != nil {
 		return nil, err
 	}
-	user.HashId = *hash
+	user.Hash = *hash
 
 	// Update the record in the USERS table.
-	if err := db.Table("users").Where("ID = ?", user.Id).Updates(user).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", user.ID).Updates(user).Error; err != nil {
 		return nil, err
 	}
 
 	// Optionally, re-fetch the updated record.
-	if err := db.Table("users").Where("ID = ?", user.Id).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", user.ID).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

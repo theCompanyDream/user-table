@@ -7,6 +7,12 @@ ifeq ($(wildcard .env),)
 	@echo "Created .env file."
 endif
 
+clean: down
+	@echo "Cleaning directory and volumes"
+	docker system prune -f --volumes
+	rm -rf ./apps/backend/.tmp ./apps/backend/tmp
+	pnpm --dir apps/frontend clean
+
 dev:
 	@echo "Starting Dev"
 	docker compose up -d
