@@ -77,13 +77,13 @@ func GetUsers(c echo.Context) error {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param user body models.UserCreate true "User object"
+// @Param user body models.UserInput true "User object"
 // @Success 201 {object} models.UserDTO "User Created"
 // @Failure 400 {object} object "Bad Request"
 // @Router /user [post]
 func CreateUser(c echo.Context) error {
 	// Parse user details from the request body and insert into the database
-	request := model.UserCreate{}
+	request := model.UserInput{}
 	err := c.Bind(&request)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func CreateUser(c echo.Context) error {
 		validationErrors := err.(validator.ValidationErrors)
 		return c.JSON(http.StatusUnprocessableEntity, validationErrorsToMap(validationErrors))
 	}
-	dto := model.CreateToDTO(request)
+	dto := model.InputToDTO(request)
 	user, error := db.CreateUser(*dto)
 	if error != nil {
 		return error
@@ -108,14 +108,14 @@ func CreateUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Param user body models.UserUpdate true "User object"
+// @Param user body models.UserInput true "User object"
 // @Success 200 {object} models.UserDTO "User Updated"
 // @Failure 400 {object} object "Bad Request"
 // @Router /user/{id} [put]
 func UpdateUser(c echo.Context) error {
 	// Parse user details from the request body and insert into the database
 	// request := checkConstraints(c)
-	request := model.UserUpdate{}
+	request := model.UserInput{}
 	err := c.Bind(&request)
 	if err != nil {
 		return err
@@ -128,7 +128,7 @@ func UpdateUser(c echo.Context) error {
 	if id := c.Param("id"); id != "" {
 		request.HashId = &id
 	}
-	dto := model.UpdateToDTO(request)
+	dto := model.InputToDTO(request)
 	user, error := db.UpdateUser(*dto)
 	if error != nil {
 		return error

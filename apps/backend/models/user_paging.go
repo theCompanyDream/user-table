@@ -16,5 +16,5 @@ type Paging struct {
 type UserDTOPaging struct {
 	Paging // Embedded Paging struct
 	// A list of users
-	Users []UserDTO `json:"users"`
+	Users []UserInput `json:"users"`
 }

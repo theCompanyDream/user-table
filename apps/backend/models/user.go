@@ -5,42 +5,28 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-// User represents a user in the system
-// @Description User object contains user information.
-type UserCreate struct {
-	// We hide the id because we don't want it to leave beyond the context of the database
-	Id *string `json:"-"` // This field will be ignored by Swagger as it's unexported (private)
-	// HashId is the public identifier for the user
-	HashId *string `json:"id"` // HashId is a UUID
-	// UserName is the user's username, required, between 5 and 50 characters
-	UserName *string `json:"user_name" validate:"required,min=5,max=50" form:"user_name"`
-	// FirstName is the user's first name, required, between 5 and 50 characters
-	FirstName *string `json:"first_name" validate:"required,min=3,max=255" form:"first_name"`
-	// LastName is the user's last name, required, between 5 and 50 characters
-	LastName *string `json:"last_name" validate:"required,min=3,max=255" form:"last_name"`
-	// Email is the user's email address, required, must be a valid email format
-	Email *string `json:"email" validate:"required,email,max=255" form:"email"`
-	// UserStatus is the user's status, required, must be exactly 1 character and contain "IAT"
-	UserStatus *string `json:"user_status" validate:"required,oneof=I A T" form:"user_status"`
-	// Department is the user's department, can be null
-	Department *string `json:"department" form:"department"`
-}
+// UserInput is a unified model for both creating and updating a user.
+type UserInput struct {
+	// HashId is the public identifier for the user (UUID).
+	// For create operations, this might be generated internally.
+	HashId *string `json:"id" validate:"omitempty,uuid4" form:"id"`
 
-type UserUpdate struct {
-	Id *string `json:"-"` // This field will be ignored by Swagger as it's unexported (private)
-	// HashId is the public identifier for the user
-	HashId *string `json:"id" path:"id"` // HashId is a UUID
-	// UserName is the user's username, between 5 and 50 characters
+	// UserName is required when creating a new user.
 	UserName *string `json:"user_name" validate:"omitempty,min=5,max=50" form:"user_name"`
-	// FirstName is the user's first name, between 5 and 50 characters
+
+	// FirstName is required when creating a new user.
 	FirstName *string `json:"first_name" validate:"omitempty,min=3,max=255" form:"first_name"`
-	// LastName is the user's last name, between 5 and 50 characters
-	LastName *string `json:"last_name" validate:"omitempty,min=3,max=255" form:"last_name"` // Corrected validate tag
-	// Email is the user's email address, must be a valid email format
+
+	// LastName is required when creating a new user.
+	LastName *string `json:"last_name" validate:"omitempty,min=3,max=255" form:"last_name"`
+
+	// Email is required when creating a new user.
 	Email *string `json:"email" validate:"omitempty,email,max=255" form:"email"`
-	// UserStatus is the user's status, must be exactly 1 character and contain "IAT"
+
+	// UserStatus is required when creating a new user.
 	UserStatus *string `json:"user_status" validate:"omitempty,oneof=I A T" form:"user_status"`
-	// Department is the user's department, can be null
+
+	// Department is optional.
 	Department *string `json:"department" form:"department"`
 }
 
@@ -61,15 +47,9 @@ func (UserDTO) TableName() string {
 	return "users"
 }
 
-func CreateToDTO(userCreate UserCreate) *UserDTO {
+func InputToDTO(userCreate UserInput) *UserDTO {
 	var user UserDTO
 	copier.Copy(&user, &userCreate)
-	return &user
-}
-
-func UpdateToDTO(userUpdate UserUpdate) *UserDTO {
-	var user UserDTO
-	copier.Copy(&user, &userUpdate)
-	user.Hash = *userUpdate.HashId
+	user.Hash = *userCreate.HashId
 	return &user
 }
