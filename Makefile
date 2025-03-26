@@ -5,10 +5,13 @@ ifeq ($(wildcard .env),)
 	@echo ".env file does not exist. Creating one."
 	cp .env.example .env
 	@echo "Created .env file."
-else
-	# .env file exists
-	@echo ".env file exists."
 endif
+
+clean: down
+	@echo "Cleaning directory and volumes"
+	docker system prune -f --volumes
+	rm -rf ./apps/backend/.tmp ./apps/backend/tmp
+	pnpm --dir apps/frontend clean
 
 dev:
 	@echo "Starting Dev"

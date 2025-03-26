@@ -1,189 +1,210 @@
 package repository
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	_ "github.com/lib/pq"
+	"github.com/labstack/echo/v4"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	model "github.com/theCompanyDream/user-angular/apps/backend/models"
 )
 
-var db *sql.DB
+var db *gorm.DB
 
+// GetPostgresConnectionString returns a PostgreSQL connection string.
+// It first checks for POSTGRES_URL and falls back to constructing the string.
 func GetPostgresConnectionString() string {
 	connectStr := os.Getenv("POSTGRES_URL")
 	if connectStr != "" {
 		return connectStr
 	}
-	return fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", os.Getenv("DATABASE_USERNAME"), os.Getenv("DATABASE_PASSWORD"), os.Getenv("DATABASE_HOST"), os.Getenv("DATABASE_NAME"))
+
+	// More explicit connection string for Docker/internal network
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=UTC",
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("DATABASE_PORT"),
+		os.Getenv("DATABASE_USERNAME"),
+		os.Getenv("DATABASE_PASSWORD"),
+		os.Getenv("DATABASE_NAME"))
 }
 
 func InitDB() {
 	var err error
 	connectStr := GetPostgresConnectionString()
-	fmt.Println(connectStr)
+	fmt.Println("Connecting to:", connectStr)
 
-	db, err = sql.Open("postgres", connectStr)
+	// Add more verbose logging and configuration
+	db, err = gorm.Open(postgres.Open(connectStr), &gorm.Config{
+		// Add additional configurations
+		Logger: logger.Default.LogMode(logger.Info), // Enable detailed logging
+	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
+	// Test the connection
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Failed to get database: %v", err)
+	}
+
+	// Ping the database
+	if err := sqlDB.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
+	}
+
+	// Auto migrate with more detailed error handling
+	if err := db.AutoMigrate(&model.UserDTO{}); err != nil {
+		log.Fatalf("Failed to auto migrate: %v", err)
+	}
+
+	fmt.Println("Database connection successful")
 }
 
+// GetUser retrieves a user by its HASH column.
 func GetUser(hashId string) (*model.UserDTO, error) {
-	// Assume URL like /users/{id}
 	var user model.UserDTO
-	query := squirrel.Select("Id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
-		From("USERS").
-		Where(squirrel.Eq{"HASH": hashId}).
-		PlaceholderFormat(squirrel.Dollar).
-		RunWith(db)
-
-	err := query.QueryRow().Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
-	if err != nil {
+	// Ensure the table name is correctly referenced (if needed, use Table("users"))
+	if err := db.Table("users").Where("HASH = ?", hashId).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func GetUsers(search string, page, limit int) (*model.UserDTOPaging, error) {
-	// Check for potential overflow during multiplication
-	offset := (page - 1) * limit
-	users := model.UserDTOPaging{}
-	query := squirrel.Select("Id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT, COUNT(*) OVER() AS total_count").
-		From("USERS")
+// GetUsers retrieves a page of users that match a search criteria.
+func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPaging, error) {
+	var users []model.UserDTO
+	var userInput []model.UserInput
+	var totalCount int64
+
+	// Use db.Model instead of db.Table
+	query := db.Model(&model.UserDTO{})
 
 	if search != "" {
-		query = query.Where(squirrel.Or{
-			squirrel.Like{"USER_NAME": "%" + search + "%"},
-			squirrel.Like{"FIRST_NAME": "%" + search + "%"},
-			squirrel.Like{"LAST_NAME": "%" + search + "%"},
-			squirrel.Like{"EMAIL": search + "%"},
-		})
+		likeSearch := "%" + search + "%"
+		query = query.Where(
+			"user_name ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ?",
+			likeSearch, likeSearch, likeSearch, likeSearch,
+		)
 	}
-	// Note: there was a weird bug that if offset was 0 it overflowed the buffer and made offset this absurd number
-	fmt.Println(offset)
-	if offset > 0 {
-		query = query.Offset(uint64(offset))
-	}
-	query = query.Limit(uint64(limit)).
-		PlaceholderFormat(squirrel.Dollar).
-		RunWith(db)
-	rows, err := query.Query()
-	if err != nil {
+
+	// Count total matching records
+	if err := query.Count(&totalCount).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var user model.UserDTO
-		var totalCount int
-		if err := rows.Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department, &totalCount); err != nil {
-			return nil, err
-		}
-		users.Users = append(users.Users, user)
-		// Total count will be the same for all rows, so we can just set it once
-		users.Length = &totalCount
+
+	offset := (page - 1) * limit
+	if offset < 0 {
+		offset = 0
 	}
-	users.Page = &page
-	users.PageSize = &limit
-	return &users, nil
+
+	// Remove explicit Select, let GORM handle field mapping
+	if err := query.Offset(offset).Limit(limit).Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	c.Logger().Info("Total users: %+v\n", users)
+
+	total := int(totalCount)
+	paging := model.Paging{
+		Page:     &page,
+		Length:   &total,
+		PageSize: &limit,
+	}
+	userInput = make([]model.UserInput, 0, len(users))
+	for user := range users {
+		userInput = append(userInput, model.UserInput{
+			HashId:     &users[user].Hash,
+			UserName:   &users[user].UserName,
+			FirstName:  &users[user].FirstName,
+			LastName:   &users[user].LastName,
+			Email:      &users[user].Email,
+			UserStatus: &users[user].UserStatus,
+			Department: users[user].Department,
+		})
+	}
+	return &model.UserDTOPaging{
+		Paging: paging,
+		Users:  userInput,
+	}, nil
 }
 
+// CreateUser creates a new user record.
 func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
-	var user model.UserDTO
-	id := uuid.New().String()
-	requestedUser.Id = &id
+	// Generate a new UUID for the user.
+	id := uuid.New()
+	requestedUser.ID = id
+
+	// Compute a hash for the user.
 	hash, err := model.HashObject(requestedUser)
 	if err != nil {
 		return nil, err
 	}
-	requestedUser.HashId = hash
+	requestedUser.Hash = *hash
 
-	query := squirrel.Insert("USERS").
-		Columns("ID", "HASH", "USER_NAME", "FIRST_NAME", "LAST_NAME", "EMAIL", "USER_STATUS", "DEPARTMENT").
-		Values(requestedUser.Id, requestedUser.HashId, requestedUser.UserName, requestedUser.FirstName, requestedUser.LastName, requestedUser.Email, requestedUser.UserStatus, requestedUser.Department).
-		Suffix("RETURNING ID, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
-		PlaceholderFormat(squirrel.Dollar).
-		RunWith(db)
-
-	err = query.QueryRow().Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
-	if err != nil {
+	// Insert the record into the USERS table.
+	if err := db.Table("users").Create(&requestedUser).Error; err != nil {
 		return nil, err
 	}
-
-	return &user, nil
+	return &requestedUser, nil
 }
 
+// UpdateUser updates an existing user's details.
 func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
-	// Grab the user to be updated
-	user, err := GetUser(*requestedUser.HashId)
-	if err != nil {
+	var user model.UserDTO
+	// Retrieve the user to be updated by its HASH.
+	if err := db.Table("users").Where("hash LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
 		return nil, err
-	} else if user.Id == nil && *user.Id == "" {
-		return nil, errors.New("user not Found")
+	}
+	if user.ID == uuid.Nil {
+		return nil, errors.New("user not found")
 	}
 
-	query := squirrel.Update("USERS")
+	// Update fields if provided.
 	if requestedUser.Department != nil && *requestedUser.Department != "" {
 		user.Department = requestedUser.Department
-		query = query.Set("DEPARTMENT", *requestedUser.Department)
 	}
-	if requestedUser.FirstName != nil && *requestedUser.FirstName != "" {
+	if requestedUser.FirstName != "" {
 		user.FirstName = requestedUser.FirstName
-		query = query.Set("FIRST_NAME", *requestedUser.FirstName)
 	}
-	if requestedUser.LastName != nil && *requestedUser.LastName != "" {
+	if requestedUser.LastName != "" {
 		user.LastName = requestedUser.LastName
-		query = query.Set("LAST_NAME", *requestedUser.LastName)
 	}
-	if requestedUser.Email != nil && *requestedUser.Email != "" {
+	if requestedUser.Email != "" {
 		user.Email = requestedUser.Email
-		query = query.Set("EMAIL", *requestedUser.Email)
 	}
-	if requestedUser.UserStatus != nil && *requestedUser.UserStatus != "" {
+	if requestedUser.UserStatus != "" {
 		user.UserStatus = requestedUser.UserStatus
-		query = query.Set("USER_STATUS", *requestedUser.UserStatus)
 	}
 
+	// Recompute the hash after updates.
 	hash, err := model.HashObject(user)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(user)
-	//Move id before we clear model
-	requestedUser.Id = user.Id
-	// clear the model
-	user = &model.UserDTO{}
-	query = query.Set("HASH", *hash).
-		Where(squirrel.Eq{"ID": *requestedUser.Id}).
-		Suffix("RETURNING ID, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT").
-		PlaceholderFormat(squirrel.Dollar).
-		RunWith(db)
+	user.Hash = *hash
 
-	_, err = query.Exec()
-	if err != nil {
+	// Update the record in the USERS table.
+	if err := db.Table("users").Where("ID = ?", user.ID).Updates(user).Error; err != nil {
 		return nil, err
 	}
-	err = query.QueryRow().Scan(&user.Id, &user.HashId, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.UserStatus, &user.Department)
-	if err != nil {
+
+	// Optionally, re-fetch the updated record.
+	if err := db.Table("users").Where("ID = ?", user.ID).First(&user).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+	return &user, nil
 }
 
+// DeleteUser removes a user record based on its HASH.
 func DeleteUser(id string) error {
-	// Parse user details from the request body and insert into the database
-	query := squirrel.Delete("USERS").
-		Where(squirrel.Eq{"HASH": id}).
-		PlaceholderFormat(squirrel.Dollar).
-		RunWith(db)
-	_, err := query.Exec()
-	if err != nil {
+	if err := db.Table("users").Where("HASH = ?", id).Delete(&model.UserDTO{}).Error; err != nil {
 		return err
 	}
 	return nil
