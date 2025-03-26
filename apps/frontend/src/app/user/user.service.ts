@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../environments';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {User} from './user'
 
@@ -7,7 +8,7 @@ import {User} from './user'
   providedIn: 'root'
 })
 export class UserService {
-  private hostUrl=`http://localhost/api`;
+  private hostUrl= environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
