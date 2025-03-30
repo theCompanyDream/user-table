@@ -1,4 +1,6 @@
 import React, { useState, memo } from 'react';
+import { Link } from "react-router-dom";
+import github from "../assets/github.svg"
 
 const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,12 +9,14 @@ const Navigation = memo(() => {
     <header className="bg-gray-800 text-white shadow w-full">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo or Title */}
-        <div className="text-xl font-bold">User Administrator</div>
+        <Link to="/" className="text-xl font-bold">User Administrator</Link>
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-4">
-          <a href="/about" className="hover:text-gray-300">Create</a>
-          <a href="/services" className="hover:text-gray-300">Docs</a>
-          <a href="/contact" className="hover:text-gray-300">Contact</a>
+          <Link to="/detail" className="hover:text-gray-300">Create</Link>
+          <Link to="/services" className="hover:text-gray-300">Docs</Link>
+          <Link to="https://github.com/theCompanyDream/user-table" className="hover:text-gray-300">
+            <img src={github} alt="github logo" />
+          </Link>
         </nav>
         {/* Mobile Menu Button */}
         <div className="md:hidden">
@@ -52,15 +56,15 @@ const Navigation = memo(() => {
       {isOpen && (
         <div className="md:hidden bg-gray-700">
           <nav className="px-4 py-2 space-y-1">
-            <a href="/about" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-600">
+            <Link to="/detail" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-600">
               Create
-            </a>
-            <a href="/services" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-600">
+            </Link>
+            <Link to="/services" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-600">
               Docs
-            </a>
-            <a href="/contact" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-600">
-              Contact
-            </a>
+            </Link>
+            <Link to="https://github.com/theCompanyDream/user-table" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-600">
+              <img src={github} alt="github logo" />
+            </Link>
           </nav>
         </div>
       )}

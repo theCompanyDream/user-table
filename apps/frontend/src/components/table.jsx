@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 
-// Pagination component
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  // Create an array of page numbers
-  let pages = []
-  console.log(`${currentPage} > ${totalPages}`)
-  if (currentPage + 10 <= totalPages) {
-    pages = Array.from({ length: 10 }, (_, i) => currentPage + i);
-  } else {
-    console.log("hello this ran")
-    pages = Array.from({ length: totalPages - currentPage + 1 }, (_, i) => currentPage + i);
-  }
+  const [pages, setPages] = useState([]);
 
+  useEffect(() => {
+    if (currentPage + 10 <= totalPages) {
+      const newPages = Array.from({ length: 10 }, (_, i) => currentPage + i);
+      setPages(newPages)
+    } else {
+      const factor = totalPages - (10 + currentPage)
+      const index = currentPage + factor
+      console.log(`Subtracted: ${factor} final: ${index}`)
+      const newPages = Array.from({ length: 10 }, (_, i) => index + i);
+      setPages(newPages)
+    }
+  }, [currentPage, totalPages]);
 
   return (
     <div className="flex justify-center items-center mt-4 space-x-2">
@@ -49,8 +53,9 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   );
 };
 
+
 // Table component with pagination
-const Table = ({ users, currentPage, totalPages, onPageChange }) => (
+const Table = ({ users, currentPage, totalPages, onPageChange, onDelete }) => (
   <section>
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
@@ -92,6 +97,7 @@ const Table = ({ users, currentPage, totalPages, onPageChange }) => (
             >
               Department
             </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -105,8 +111,8 @@ const Table = ({ users, currentPage, totalPages, onPageChange }) => (
                 <td className="px-6 py-4 whitespace-nowrap">{user.user_status}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.department || 'N/A'}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <button className='bg-blue-500 text-white px-4 py-2 border rounded'>Edit</button>
-                  <button className='bg-red-500 text-white px-4 py-2 border rounded'>Delete</button>
+                  <Link to={`/detail/${users.id}`} className='bg-blue-500 text-white px-4 py-2 border rounded'>Edit</Link>
+                  <button onClick={onDelete} className='bg-red-500 text-white px-4 py-2 border rounded'>Delete</button>
                 </td>
               </tr>
             ))

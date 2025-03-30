@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"math"
 
 	"github.com/oklog/ulid/v2"
 	"github.com/labstack/echo/v4"
@@ -109,26 +110,29 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 		return nil, err
 	}
 
-	c.Logger().Info("Total users: %+v\n", users)
+	// Calculate the actual page count
+	pageCount := int(math.Ceil(float64(totalCount) / float64(limit)))
 
-	total := int(totalCount)
 	paging := model.Paging{
-		Page:     &page,
-		PageCount:   &total,
-		PageSize: &limit,
+		Page:      &page,
+		PageCount: &pageCount, // Correct page count, not total records
+		PageSize:  &limit,
 	}
+
 	userInput = make([]model.UserInput, 0, len(users))
-	for user := range users {
+	// Correct loop to iterate through users
+	for _, user := range users {  // Use index and value pattern
 		userInput = append(userInput, model.UserInput{
-			HashId:     &users[user].Hash,
-			UserName:   &users[user].UserName,
-			FirstName:  &users[user].FirstName,
-			LastName:   &users[user].LastName,
-			Email:      &users[user].Email,
-			UserStatus: &users[user].UserStatus,
-			Department: users[user].Department,
+			HashId:     &user.Hash,         // Use the value, not the index
+			UserName:   &user.UserName,     // Use the value, not the index
+			FirstName:  &user.FirstName,    // Use the value, not the index
+			LastName:   &user.LastName,     // Use the value, not the index
+			Email:      &user.Email,        // Use the value, not the index
+			UserStatus: &user.UserStatus,   // Use the value, not the index
+			Department: user.Department,    // Use the value, not the index
 		})
 	}
+
 	return &model.UserDTOPaging{
 		Paging: paging,
 		Users:  userInput,

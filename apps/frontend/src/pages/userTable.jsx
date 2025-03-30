@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState, useMemo } from 'react';
 import { UserContext, Table } from '../components';
 
 const UserTable = () => {
