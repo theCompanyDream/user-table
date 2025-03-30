@@ -3,15 +3,19 @@ import { Route, Routes } from "react-router-dom";
 
 import { ClockLoader  } from "react-spinners"
 
-
-import {UserContext} from "./components";
+import {UserContext, Layout} from "./components";
 
 // Error Page
-const Page404 = React.lazy(() => import('./components/pages/notFound'));
+const Page404 = React.lazy(() => import('./pages/notFound'));
+const Table = React.lazy(() => import('./pages/userTable'));
+const Detail = React.lazy(() => import('./pages/detail'));
 
 const App = () => {
   const defaultBookContext = {
     users: [],
+    page: 1,
+    Length: 10,
+    PageSize: 20
   };
 
   const [users, setUsers] = useState(defaultBookContext);
@@ -25,8 +29,8 @@ const App = () => {
       <Layout>
         <Suspense fallback={<ClockLoader  color="#FFF200" size={50} />}>
           <Routes>
-            <Route index path="/" element={<List />} />
-            <Route path="/about" element={<About />} />
+            <Route index path="/" element={<Table />} />
+            <Route path="/detail/:id" element={<Detail />} />
             <Route path="*" element={<Page404 />} />
           </Routes>
         </Suspense>

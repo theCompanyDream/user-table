@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -138,8 +138,8 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 // CreateUser creates a new user record.
 func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	// Generate a new UUID for the user.
-	id := uuid.New()
-	requestedUser.ID = id
+	id := ulid.Make()
+	requestedUser.ID = id.String()
 
 	// Compute a hash for the user.
 	hash, err := model.HashObject(requestedUser)
@@ -162,7 +162,7 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	if err := db.Table("users").Where("hash LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
 		return nil, err
 	}
-	if user.ID == uuid.Nil {
+	if user.ID == "" {
 		return nil, errors.New("user not found")
 	}
 
