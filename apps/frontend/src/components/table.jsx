@@ -3,7 +3,15 @@ import React from 'react';
 // Pagination component
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   // Create an array of page numbers
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  let pages = []
+  console.log(`${currentPage} > ${totalPages}`)
+  if (currentPage + 10 <= totalPages) {
+    pages = Array.from({ length: 10 }, (_, i) => currentPage + i);
+  } else {
+    console.log("hello this ran")
+    pages = Array.from({ length: totalPages - currentPage + 1 }, (_, i) => currentPage + i);
+  }
+
 
   return (
     <div className="flex justify-center items-center mt-4 space-x-2">
@@ -96,6 +104,10 @@ const Table = ({ users, currentPage, totalPages, onPageChange }) => (
                 <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.user_status}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.department || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <button className='bg-blue-500 text-white px-4 py-2 border rounded'>Edit</button>
+                  <button className='bg-red-500 text-white px-4 py-2 border rounded'>Delete</button>
+                </td>
               </tr>
             ))
           ) : (

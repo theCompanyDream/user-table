@@ -6,7 +6,7 @@ type Paging struct {
 	// The current page number
 	Page *int `json:"page"`
 	// The total number of items available
-	Length *int `json:"length"`
+	PageCount *int `json:"page_count"`
 	// The number of items per page
 	PageSize *int `json:"page_size"`
 }

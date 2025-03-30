@@ -114,7 +114,7 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 	total := int(totalCount)
 	paging := model.Paging{
 		Page:     &page,
-		Length:   &total,
+		PageCount:   &total,
 		PageSize: &limit,
 	}
 	userInput = make([]model.UserInput, 0, len(users))
