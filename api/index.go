@@ -40,8 +40,10 @@ func initEcho() {
 
 // Handler is the AWS Lambda handler function.
 func Handler(w http.ResponseWriter, r *http.Request) {
-	initDBOnce.Do(repository.InitDB)
+	if err := repository.InitDB(); err != nil {
+		http.Error(w, "Database initialization error", http.StatusInternalServerError)
+		return
+	}
 	echoOnce.Do(initEcho)
-
 	e.ServeHTTP(w, r)
 }
