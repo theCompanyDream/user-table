@@ -65,6 +65,7 @@ func InitDB() error {
 	}
 
 	fmt.Println("Database connection successful")
+	return nil
 }
 
 // GetUser retrieves a user by its HASH column.
