@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/labstack/echo/v4 v4.13.3
-	github.com/theCompanyDream/user-table/apps/backend v0.0.1
+	github.com/theCompanyDream/user-table/apps/backend v0.0.2
 )
 
 require (
