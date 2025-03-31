@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 )
 
@@ -23,23 +22,19 @@ type UserInput struct {
 	// Email is required when creating a new user.
 	Email *string `json:"email" validate:"omitempty,email,max=255" form:"email"`
 
-	// UserStatus is required when creating a new user.
-	UserStatus *string `json:"user_status" validate:"omitempty,oneof=I A T" form:"user_status"`
-
 	// Department is optional.
 	Department *string `json:"department" form:"department"`
 }
 
 // UserDTO represents a user in the system.
 type UserDTO struct {
-	ID         uuid.UUID `gorm:"column:id;type:uuid;primaryKey"`
+	ID         string `gorm:"column:id;type:varchar(26);primaryKey"`
 	Hash       string    `gorm:"column:hash;type:varchar(64);not null" json:"id"`
-	UserName   string    `gorm:"column:user_name;type:varchar(50);not null" json:"user_name"`
-	FirstName  string    `gorm:"column:first_name;type:varchar(255);not null" json:"first_name"`
-	LastName   string    `gorm:"column:last_name;type:varchar(255);not null" json:"last_name"`
-	Email      string    `gorm:"column:email;type:varchar(255);not null;unique" json:"email"`
-	UserStatus string    `gorm:"column:user_status;type:varchar(1);not null" json:"user_status"`
-	Department *string   `gorm:"column:department;type:varchar(255)" json:"department"`
+	UserName   string    `gorm:"column:user_name;type:varchar(20);not null" json:"user_name"`
+	FirstName  string    `gorm:"column:first_name;type:varchar(40);not null" json:"first_name"`
+	LastName   string    `gorm:"column:last_name;type:varchar(40);not null" json:"last_name"`
+	Email      string    `gorm:"column:email;type:varchar(40);not null;unique" json:"email"`
+	Department *string   `gorm:"column:department;type:varchar(25)" json:"department"`
 }
 
 // TableName sets the table name for UserDTO to "users".

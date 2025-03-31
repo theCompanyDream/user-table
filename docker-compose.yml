@@ -60,8 +60,6 @@ services:
 
   user_web:
     container_name: ${FRONTEND_NAME}
-    ports:
-      - ${FRONTEND_PORT}:${FRONTEND_PORT}
     depends_on:
       - ${BACKEND_NAME}
     env_file:
@@ -71,5 +69,6 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./apps/frontend/src:/opt/app/src
+      - ./apps/frontend/public:/opt/app/public
     networks:
       - app-nework

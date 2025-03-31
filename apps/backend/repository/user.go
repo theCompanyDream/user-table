@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"math"
 
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -109,26 +110,28 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 		return nil, err
 	}
 
-	c.Logger().Info("Total users: %+v\n", users)
+	// Calculate the actual page count
+	pageCount := int(math.Ceil(float64(totalCount) / float64(limit)))
 
-	total := int(totalCount)
 	paging := model.Paging{
-		Page:     &page,
-		Length:   &total,
-		PageSize: &limit,
+		Page:      &page,
+		PageCount: &pageCount, // Correct page count, not total records
+		PageSize:  &limit,
 	}
+
 	userInput = make([]model.UserInput, 0, len(users))
-	for user := range users {
+	// Correct loop to iterate through users
+	for _, user := range users {  // Use index and value pattern
 		userInput = append(userInput, model.UserInput{
-			HashId:     &users[user].Hash,
-			UserName:   &users[user].UserName,
-			FirstName:  &users[user].FirstName,
-			LastName:   &users[user].LastName,
-			Email:      &users[user].Email,
-			UserStatus: &users[user].UserStatus,
-			Department: users[user].Department,
+			HashId:     &user.Hash,         // Use the value, not the index
+			UserName:   &user.UserName,     // Use the value, not the index
+			FirstName:  &user.FirstName,    // Use the value, not the index
+			LastName:   &user.LastName,     // Use the value, not the index
+			Email:      &user.Email,        // Use the value, not the index
+			Department: user.Department,    // Use the value, not the index
 		})
 	}
+
 	return &model.UserDTOPaging{
 		Paging: paging,
 		Users:  userInput,
@@ -138,8 +141,8 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 // CreateUser creates a new user record.
 func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	// Generate a new UUID for the user.
-	id := uuid.New()
-	requestedUser.ID = id
+	id := ulid.Make()
+	requestedUser.ID = id.String()
 
 	// Compute a hash for the user.
 	hash, err := model.HashObject(requestedUser)
@@ -162,7 +165,7 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	if err := db.Table("users").Where("hash LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
 		return nil, err
 	}
-	if user.ID == uuid.Nil {
+	if user.ID == "" {
 		return nil, errors.New("user not found")
 	}
 
@@ -178,9 +181,6 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	}
 	if requestedUser.Email != "" {
 		user.Email = requestedUser.Email
-	}
-	if requestedUser.UserStatus != "" {
-		user.UserStatus = requestedUser.UserStatus
 	}
 
 	// Recompute the hash after updates.
