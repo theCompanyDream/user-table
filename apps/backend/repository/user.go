@@ -45,23 +45,24 @@ func InitDB() error {
 		Logger: logger.Default.LogMode(logger.Info), // Enable detailed logging
 	})
 	if err != nil {
-		return fmt.Errorf("Failed to connect to database: %v", err)
+		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
 	// Test the connection
 	sqlDB, err := db.DB()
 	if err != nil {
-		return fmt.Errorf("Failed to get database: %v", err)
+		return fmt.Errorf("failed to get database: %v", err)
 	}
 
 	// Ping the database
 	if err := sqlDB.Ping(); err != nil {
-		return fmt.Errorf("Failed to ping database: %v", err)
+		return fmt.Errorf("failed to ping database: %v", err)
 	}
 
 	// Auto migrate with more detailed error handling
 	if err := db.AutoMigrate(&model.UserDTO{}); err != nil {
-		return fmt.Errorf("Failed to auto migrate: %v", err)
+		// Log the error as a warning and continue
+		fmt.Printf("Warning: Failed to auto migrate: %v", err)
 	}
 
 	fmt.Println("Database connection successful")
