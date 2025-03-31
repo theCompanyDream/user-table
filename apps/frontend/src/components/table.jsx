@@ -5,17 +5,27 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const [pages, setPages] = useState([]);
 
   useEffect(() => {
-    if (currentPage + 10 <= totalPages) {
-      const newPages = Array.from({ length: 10 }, (_, i) => currentPage + i);
-      setPages(newPages)
+    let newPages = [];
+
+    if (totalPages <= 10) {
+      // If there are 10 or fewer pages, show them all.
+      newPages = Array.from({ length: totalPages }, (_, i) => i + 1);
     } else {
-      const factor = totalPages - (10 + currentPage)
-      const index = currentPage + factor + 1
-      console.log(`Subtracted: ${factor} final: ${index}`)
-      const newPages = Array.from({ length: 10 }, (_, i) => index + i);
-      setPages(newPages)
+      if (currentPage <= 6) {
+        // Show first 10 pages.
+        newPages = Array.from({ length: 10 }, (_, i) => i + 1);
+      } else if (currentPage + 4 >= totalPages) {
+        // Show last 10 pages.
+        newPages = Array.from({ length: 10 }, (_, i) => totalPages - 9 + i);
+      } else {
+        // Center the current page in the middle of the pagination.
+        newPages = Array.from({ length: 10 }, (_, i) => currentPage - 5 + i);
+      }
     }
+
+    setPages(newPages);
   }, [currentPage, totalPages]);
+
 
   return (
     <div className="flex justify-center items-center mt-4 space-x-2">

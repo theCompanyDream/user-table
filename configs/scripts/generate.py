@@ -13,7 +13,7 @@ ulid = ULID()
 
 # Example departments list
 departments = [
-    "Accounting", "Sales", "Engineering", "HR", "Marketing", "IT", "Operations"
+    "accounting", "sales", "engineering", "hr", "marketing", "it", "operations", "marketing", "operations"
 ]
 
 def get_db_connection():
@@ -34,7 +34,6 @@ def get_db_connection():
         password=postgres_password,
         host="localhost",
         port=postgres_port
-        # "postgresql://postgres.kjiwvbiisjfjdfbkrnfe:i&hNG72g4OIw#uze@aws-0-us-west-1.pooler.supabase.com:6543/postgres"
     )
     return conn
 
@@ -48,7 +47,6 @@ def create_users_table(conn):
                 FIRST_NAME VARCHAR(255) NOT NULL,
                 LAST_NAME VARCHAR(255) NOT NULL,
                 EMAIL VARCHAR(255) NOT NULL,
-                USER_STATUS VARCHAR(1) NOT NULL,
                 DEPARTMENT VARCHAR(255),
                 PRIMARY KEY(ID),
                 UNIQUE(EMAIL),
@@ -68,23 +66,22 @@ def generate_fake_user():
     last_name = fake.last_name()[:255]
     email = fake.email()[:255]
     # Example: random user status letter; adjust choices as needed.
-    user_status = random.choice(['A', 'T', 'P'])
     department = random.choice(departments)
-    return (user_id, hash_value, user_name, first_name, last_name, email, user_status, department)
+    return (user_id, hash_value, user_name, first_name, last_name, email, department)
 
 def insert_fake_users(conn, num_records):
     with conn.cursor() as cur:
         for _ in range(num_records):
             user_data = generate_fake_user()
             cur.execute("""
-                INSERT INTO users (id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, USER_STATUS, DEPARTMENT)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+                INSERT INTO users (id, HASH, USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, DEPARTMENT)
+                VALUES (%s, %s, %s, %s, %s, %s, %s);
             """, user_data)
         conn.commit()
         print(f"Inserted {num_records} fake user records.")
 
 def main():
-    num_records = 200  # Adjust the number of records you want to generate
+    num_records = 300  # Adjust the number of records you want to generate
     conn = get_db_connection()
     try:
         insert_fake_users(conn, num_records)

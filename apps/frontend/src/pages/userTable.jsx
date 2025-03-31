@@ -17,10 +17,10 @@ const UserTable = () => {
     fetch(`/api/user/${e}`, {
       method: "DELETE"
     })
-      .then(e => {
-        const newUsers = users.filter(user => e !== user.id)
-        setUsers(newUsers)
-      })
+    .then((data) => {
+      const newUsers = users.users.filter(user => e !== user.id)
+      setUsers({...users, users: newUsers})
+    })
   }
 
   // Handler for page changes
