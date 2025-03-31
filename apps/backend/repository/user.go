@@ -128,7 +128,6 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 			FirstName:  &user.FirstName,    // Use the value, not the index
 			LastName:   &user.LastName,     // Use the value, not the index
 			Email:      &user.Email,        // Use the value, not the index
-			UserStatus: &user.UserStatus,   // Use the value, not the index
 			Department: user.Department,    // Use the value, not the index
 		})
 	}
@@ -182,9 +181,6 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	}
 	if requestedUser.Email != "" {
 		user.Email = requestedUser.Email
-	}
-	if requestedUser.UserStatus != "" {
-		user.UserStatus = requestedUser.UserStatus
 	}
 
 	// Recompute the hash after updates.

@@ -11,7 +11,6 @@ const UserDetail = () => {
     first_name: '',
     last_name: '',
     email: '',
-    user_status: '',
     department: '',
   });
 
@@ -112,25 +111,22 @@ const UserDetail = () => {
           />
         </div>
         <div>
-          <label className="block mb-1 font-semibold">User Status</label>
-          <input
-            type="text"
-            name="user_status"
-            value={formData.user_status}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded p-2"
-            required
-          />
-        </div>
-        <div>
           <label className="block mb-1 font-semibold">Department</label>
-          <input
-            type="text"
+          <select
             name="department"
             value={formData.department}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded p-2"
-          />
+          >
+            <option value="">Select a Department</option>
+            <option value="accounting">Accounting</option>
+            <option value="it">Information Technology</option>
+            <option value="hr">Human Resources</option>
+            <option value="marketing">Marketing</option>
+            <option value="sales">Sales</option>
+            <option value="engineering">Engineering</option>
+            <option value="operations">Operations</option>
+          </select>
         </div>
         <button
           type="submit"

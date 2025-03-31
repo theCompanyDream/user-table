@@ -89,12 +89,6 @@ const Table = ({ users, currentPage, totalPages, onPageChange, onDelete }) => (
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              User Status
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
               Department
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -108,7 +102,6 @@ const Table = ({ users, currentPage, totalPages, onPageChange, onDelete }) => (
                 <td className="px-6 py-4 whitespace-nowrap">{user.first_name}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.last_name}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.user_status}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.department || 'N/A'}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Link to={`/detail/${user.id}`} className='bg-blue-500 text-white px-4 py-2 border rounded'>Edit</Link>
