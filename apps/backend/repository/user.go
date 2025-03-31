@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	model "github.com/theCompanyDream/user-angular/apps/backend/models"
+	model "github.com/theCompanyDream/user-table/apps/backend/models"
 )
 
 var db *gorm.DB

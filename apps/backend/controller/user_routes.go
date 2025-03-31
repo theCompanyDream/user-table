@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	model "github.com/theCompanyDream/user-angular/apps/backend/models"
-	db "github.com/theCompanyDream/user-angular/apps/backend/repository"
+	model "github.com/theCompanyDream/user-table/apps/backend/models"
+	db "github.com/theCompanyDream/user-table/apps/backend/repository"
 )
 
 // GetUser godoc

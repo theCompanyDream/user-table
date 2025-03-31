@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/theCompanyDream/user-angular/apps/backend/controller"
-	"github.com/theCompanyDream/user-angular/apps/backend/repository"
+	"github.com/theCompanyDream/user-table/apps/backend/controller"
+	"github.com/theCompanyDream/user-table/apps/backend/repository"
 )
 
 // Echo instance
