@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/labstack/echo/v4 v4.13.3
-	github.com/theCompanyDream/user-table/apps/backend v0.0.0-20250331132217-059f1c3a8de3
+	github.com/theCompanyDream/user-table/apps/backend v0.0.0-20250331142746-397cfb8146f8
 )
 
 require (
@@ -26,7 +26,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/oklog/ulid/v2 v2.1.0 // indirect
-	github.com/theCompanyDream/user-angular/apps/backend v0.0.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
