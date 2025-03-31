@@ -1,4 +1,4 @@
-module user-table
+module github.com/theCompanyDream/user-table
 
 go 1.21
 
