@@ -30,7 +30,7 @@ const App = () => {
         <Suspense fallback={<ClockLoader  color="#FFF200" size={50} />}>
           <Routes>
             <Route index path="/" element={<Table />} />
-            <Route path="/detail/:id" element={<Detail />} />
+            <Route path="/detail/:id?" element={<Detail />} />
             <Route path="*" element={<Page404 />} />
           </Routes>
         </Suspense>

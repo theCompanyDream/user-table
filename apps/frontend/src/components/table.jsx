@@ -10,7 +10,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       setPages(newPages)
     } else {
       const factor = totalPages - (10 + currentPage)
-      const index = currentPage + factor
+      const index = currentPage + factor + 1
       console.log(`Subtracted: ${factor} final: ${index}`)
       const newPages = Array.from({ length: 10 }, (_, i) => index + i);
       setPages(newPages)
@@ -111,8 +111,8 @@ const Table = ({ users, currentPage, totalPages, onPageChange, onDelete }) => (
                 <td className="px-6 py-4 whitespace-nowrap">{user.user_status}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.department || 'N/A'}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Link to={`/detail/${users.id}`} className='bg-blue-500 text-white px-4 py-2 border rounded'>Edit</Link>
-                  <button onClick={onDelete} className='bg-red-500 text-white px-4 py-2 border rounded'>Delete</button>
+                  <Link to={`/detail/${user.id}`} className='bg-blue-500 text-white px-4 py-2 border rounded'>Edit</Link>
+                  <button onClick={() => onDelete(user.id)} className='bg-red-500 text-white px-4 py-2 border rounded'>Delete</button>
                 </td>
               </tr>
             ))

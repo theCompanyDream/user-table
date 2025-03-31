@@ -13,12 +13,15 @@ const UserTable = () => {
       .catch((err) => console.error("Error fetching users:", err));
   };
 
-  // Trigger initial data fetch if no users yet
-  useMemo(() => {
-    if (!users || users.users.length === 0) {
-      fetchUsers();
-    }
-  }, [setUsers, users]);
+  const onDelete = (e) => {
+    fetch(`/api/user/${e}`, {
+      method: "DELETE"
+    })
+      .then(e => {
+        const newUsers = users.filter(user => e !== user.id)
+        setUsers(newUsers)
+      })
+  }
 
   // Handler for page changes
   const onPageChange = (page) => {
@@ -30,6 +33,13 @@ const UserTable = () => {
     // Start a fresh search on page 1
     fetchUsers(1, search);
   };
+
+  // Trigger initial data fetch if no users yet
+  useMemo(() => {
+    if (!users || users.users.length === 0) {
+      fetchUsers();
+    }
+  }, [setUsers, users]);
 
   return (
     <main>
@@ -57,6 +67,7 @@ const UserTable = () => {
           currentPage={users.page}
           totalPages={users.page_count}
           onPageChange={onPageChange}
+          onDelete={onDelete}
         />
       )}
     </main>
