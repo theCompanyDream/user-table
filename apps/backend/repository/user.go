@@ -3,12 +3,11 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"log"
-	"os"
 	"math"
+	"os"
 
-	"github.com/oklog/ulid/v2"
 	"github.com/labstack/echo/v4"
+	"github.com/oklog/ulid/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -35,7 +34,7 @@ func GetPostgresConnectionString() string {
 		os.Getenv("DATABASE_NAME"))
 }
 
-func InitDB() {
+func InitDB() error {
 	var err error
 	connectStr := GetPostgresConnectionString()
 	fmt.Println("Connecting to:", connectStr)
@@ -46,23 +45,23 @@ func InitDB() {
 		Logger: logger.Default.LogMode(logger.Info), // Enable detailed logging
 	})
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		return fmt.Errorf("Failed to connect to database: %v", err)
 	}
 
 	// Test the connection
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatalf("Failed to get database: %v", err)
+		return fmt.Errorf("Failed to get database: %v", err)
 	}
 
 	// Ping the database
 	if err := sqlDB.Ping(); err != nil {
-		log.Fatalf("Failed to ping database: %v", err)
+		return fmt.Errorf("Failed to ping database: %v", err)
 	}
 
 	// Auto migrate with more detailed error handling
 	if err := db.AutoMigrate(&model.UserDTO{}); err != nil {
-		log.Fatalf("Failed to auto migrate: %v", err)
+		return fmt.Errorf("Failed to auto migrate: %v", err)
 	}
 
 	fmt.Println("Database connection successful")
@@ -121,14 +120,14 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 
 	userInput = make([]model.UserInput, 0, len(users))
 	// Correct loop to iterate through users
-	for _, user := range users {  // Use index and value pattern
+	for _, user := range users { // Use index and value pattern
 		userInput = append(userInput, model.UserInput{
-			HashId:     &user.Hash,         // Use the value, not the index
-			UserName:   &user.UserName,     // Use the value, not the index
-			FirstName:  &user.FirstName,    // Use the value, not the index
-			LastName:   &user.LastName,     // Use the value, not the index
-			Email:      &user.Email,        // Use the value, not the index
-			Department: user.Department,    // Use the value, not the index
+			HashId:     &user.Hash,      // Use the value, not the index
+			UserName:   &user.UserName,  // Use the value, not the index
+			FirstName:  &user.FirstName, // Use the value, not the index
+			LastName:   &user.LastName,  // Use the value, not the index
+			Email:      &user.Email,     // Use the value, not the index
+			Department: user.Department, // Use the value, not the index
 		})
 	}
 

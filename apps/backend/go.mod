@@ -1,4 +1,4 @@
-module github.com/theCompanyDream/user-angular/apps/backend
+module github.com/theCompanyDream/user-table/apps/backend
 
 go 1.21
 

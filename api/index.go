@@ -30,7 +30,7 @@ func initEcho() {
 	e.Use(middleware.Logger())
 
 	// Adjust routes to include /api prefix
-	e.GET("/api", controller.GetUsers)
+	e.GET("/api", controller.Home)
 	e.GET("/api/users", controller.GetUsers)
 	e.GET("/api/user/:id", controller.GetUser)
 	e.POST("/api/user", controller.CreateUser)

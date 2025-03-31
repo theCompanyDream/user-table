@@ -1,4 +1,4 @@
-module user-angular
+module user-table
 
 go 1.21
 
@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/labstack/echo/v4 v4.13.3
-	github.com/theCompanyDream/user-angular/apps/backend v0.0.0-20250326000401-bd26f43742da
+	github.com/theCompanyDream/user-table/apps/backend v0.0.0-20250326000401-bd26f43742da
 )
 
 require (
