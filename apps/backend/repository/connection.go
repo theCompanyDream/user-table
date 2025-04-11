@@ -83,7 +83,6 @@ func SeverlessInitDB() error {
 	if err != nil {
 		return fmt.Errorf("failed to modify connection string: %v", err)
 	}
-	fmt.Println("Connecting to:", modifiedConnStr)
 
 	db, err = gorm.Open(postgres.Open(modifiedConnStr), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
@@ -91,17 +90,5 @@ func SeverlessInitDB() error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
-
-	// Test the connection.
-	sqlDB, err := db.DB()
-	if err != nil {
-		return fmt.Errorf("failed to get database: %v", err)
-	}
-
-	if err := sqlDB.Ping(); err != nil {
-		return fmt.Errorf("failed to ping database: %v", err)
-	}
-
-	fmt.Println("Database connection successful")
 	return nil
 }
