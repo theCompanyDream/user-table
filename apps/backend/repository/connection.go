@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 
 	model "github.com/theCompanyDream/user-table/apps/backend/models"
@@ -60,35 +59,29 @@ func InitDB() error {
 	return nil
 }
 
-func modifyConnectionString(connStr string) (string, error) {
-	parsed, err := url.Parse(connStr)
-	if err != nil {
-		return "", err
-	}
-	// Add or update the query parameter
-	query := parsed.Query()
-	query.Set("prefer_simple_protocol", "true")
-	parsed.RawQuery = query.Encode()
-	return parsed.String(), nil
-}
-
-func SeverlessInitDB() error {
+func ServerlessInitDB() error {
 	var err error
-	connectStr := os.Getenv("POSTGRES_URL")
-	if connectStr != "" {
-		return fmt.Errorf("failed to retrieve connection string: POSTGRES_URL not set %v", err)
-	}
-	// Modify the connection string to disable prepared statement caching.
-	modifiedConnStr, err := modifyConnectionString(connectStr)
-	if err != nil {
-		return fmt.Errorf("failed to modify connection string: %v", err)
+	connectStr := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=enable TimeZone=UTC pool_mode=%s",
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("DATABASE_PORT"),
+		os.Getenv("DATABASE_USERNAME"),
+		os.Getenv("DATABASE_PASSWORD"),
+		os.Getenv("DATABASE_NAME"),
+		os.Getenv("DATABASE_POOL_MODE"),
+	)
+
+	// Check if the connection string is empty.
+	if connectStr == "" {
+		return fmt.Errorf("failed to retrieve connection string: POSTGRES_URL not set")
 	}
 
-	db, err = gorm.Open(postgres.Open(modifiedConnStr), &gorm.Config{
+	db, err = gorm.Open(postgres.Open(connectStr), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
+
 	return nil
 }
