@@ -87,7 +87,7 @@ func ServerlessInitDB() error {
 		return fmt.Errorf("failed to modify connection string: %v", err)
 	}
 
-	db, err = gorm.Open(postgres.Open(connectStr), &gorm.Config{
+	db, err = gorm.Open(postgres.Open(modifiedConnStr), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
