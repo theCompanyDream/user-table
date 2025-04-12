@@ -77,6 +77,11 @@ func ServerlessInitDB() error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
+	// Auto migrate with more detailed error handling
+	if err := db.AutoMigrate(&model.UserDTO{}); err != nil {
+		// Log the error as a warning and continue
+		fmt.Printf("Warning: Failed to auto migrate: %v", err)
+	}
 
 	return nil
 }
