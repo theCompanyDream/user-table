@@ -53,7 +53,7 @@ func initEcho() {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	// Initialize the database, capturing errors with full stack trace.
 	initDBOnce.Do(func() {
-		if err := repository.SeverlessInitDB(); err != nil {
+		if err := repository.ServerlessInitDB(); err != nil {
 			http.Error(w, fmt.Sprintf("Database initialization error: %v\n%s", err, debug.Stack()), http.StatusInternalServerError)
 			return
 		}
