@@ -3,7 +3,6 @@ package repository
 import (
 	"fmt"
 	"os"
-	"net/url"
 
 	model "github.com/theCompanyDream/user-table/apps/backend/models"
 	"gorm.io/driver/postgres"
