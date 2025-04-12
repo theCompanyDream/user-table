@@ -60,34 +60,19 @@ func InitDB() error {
 	return nil
 }
 
-func modifyConnectionString(connStr string) (string, error) {
-	parsed, err := url.Parse(connStr)
-	if err != nil {
-		return "", fmt.Errorf("failed to parse connection string: %v", err)
-	}
-	query := parsed.Query()
-	query.Set("prefer_simple_protocol", "true")
-	parsed.RawQuery = query.Encode()
-	return parsed.String(), nil
-}
-
 func ServerlessInitDB() error {
 	var err error
 	connectStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=enable TimeZone=UTC pool_mode=%s",
-		os.Getenv("DATABASE_HOST"),
-		os.Getenv("DATABASE_PORT"),
+		"postgres://%s:%s@%s:%s/%s?sslmode=enable&TimeZone=UTC&pool_mode=%s&prefer_simple_protocol=true",
 		os.Getenv("DATABASE_USERNAME"),
 		os.Getenv("DATABASE_PASSWORD"),
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("DATABASE_PORT"),
 		os.Getenv("DATABASE_NAME"),
 		os.Getenv("DATABASE_POOL_MODE"),
 	)
-	modifiedConnStr, err := modifyConnectionString(connectStr)
-	if err != nil {
-		return fmt.Errorf("failed to modify connection string: %v", err)
-	}
 
-	db, err = gorm.Open(postgres.Open(modifiedConnStr), &gorm.Config{
+	db, err = gorm.Open(postgres.Open(connectStr), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
