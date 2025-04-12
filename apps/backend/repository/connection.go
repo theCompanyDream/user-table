@@ -62,11 +62,11 @@ func InitDB() error {
 func ServerlessInitDB() error {
 	var err error
 	connectStr := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=enable&TimeZone=UTC&pool_mode=%s&prefer_simple_protocol=true",
-		os.Getenv("DATABASE_USERNAME"),
-		os.Getenv("DATABASE_PASSWORD"),
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=enable TimeZone=UTC pool_mode=%s prefer_simple_protocol=true",
 		os.Getenv("DATABASE_HOST"),
 		os.Getenv("DATABASE_PORT"),
+		os.Getenv("DATABASE_USERNAME"),
+		os.Getenv("DATABASE_PASSWORD"),
 		os.Getenv("DATABASE_NAME"),
 		os.Getenv("DATABASE_POOL_MODE"),
 	)
