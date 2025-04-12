@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"os"
+	"net/url"
 
 	model "github.com/theCompanyDream/user-table/apps/backend/models"
 	"gorm.io/driver/postgres"
@@ -59,6 +60,17 @@ func InitDB() error {
 	return nil
 }
 
+func modifyConnectionString(connStr string) (string, error) {
+	parsed, err := url.Parse(connStr)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse connection string: %v", err)
+	}
+	query := parsed.Query()
+	query.Set("prefer_simple_protocol", "true")
+	parsed.RawQuery = query.Encode()
+	return parsed.String(), nil
+}
+
 func ServerlessInitDB() error {
 	var err error
 	connectStr := fmt.Sprintf(
@@ -70,10 +82,9 @@ func ServerlessInitDB() error {
 		os.Getenv("DATABASE_NAME"),
 		os.Getenv("DATABASE_POOL_MODE"),
 	)
-
-	// Check if the connection string is empty.
-	if connectStr == "" {
-		return fmt.Errorf("failed to retrieve connection string: POSTGRES_URL not set")
+	modifiedConnStr, err := modifyConnectionString(connectStr)
+	if err != nil {
+		return fmt.Errorf("failed to modify connection string: %v", err)
 	}
 
 	db, err = gorm.Open(postgres.Open(connectStr), &gorm.Config{
