@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 	"sync"
+	"fmt"
+	"runtime/debug"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -39,11 +41,25 @@ func initEcho() {
 }
 
 // Handler is the AWS Lambda handler function.
+// func Handler(w http.ResponseWriter, r *http.Request) {
+// 	if err := repository.SeverlessInitDB(); err != nil {
+// 		http.Error(w, "Database initialization error", http.StatusInternalServerError)
+// 		return
+// 	}
+// 	echoOnce.Do(initEcho)
+// 	e.ServeHTTP(w, r)
+// }
+
 func Handler(w http.ResponseWriter, r *http.Request) {
-	if err := repository.SeverlessInitDB(); err != nil {
-		http.Error(w, "Database initialization error", http.StatusInternalServerError)
-		return
-	}
+	// Initialize the database, capturing errors with full stack trace.
+	initDBOnce.Do(func() {
+		if err := repository.SeverlessInitDB(); err != nil {
+			http.Error(w, fmt.Sprintf("Database initialization error: %v\n%s", err, debug.Stack()), http.StatusInternalServerError)
+			return
+		}
+	})
 	echoOnce.Do(initEcho)
+
+	// Pass the request to Echo's HTTP handler.
 	e.ServeHTTP(w, r)
 }
