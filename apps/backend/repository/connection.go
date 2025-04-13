@@ -62,7 +62,7 @@ func InitDB() error {
 func ServerlessInitDB() error {
 	var err error
 	connectStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=enable TimeZone=UTC pool_mode=%s prefer_simple_protocol=true",
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=enable TimeZone=UTC pool_mode=%s",
 		os.Getenv("DATABASE_HOST"),
 		os.Getenv("DATABASE_PORT"),
 		os.Getenv("DATABASE_USERNAME"),
