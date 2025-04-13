@@ -126,7 +126,7 @@ func UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, validationErrorsToMap(validationErrors))
 	}
 	if id := c.Param("id"); id != "" {
-		request.HashId = &id
+		request.Id = &id
 	}
 	dto := model.InputToDTO(request)
 	user, error := db.UpdateUser(*dto)

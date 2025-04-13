@@ -65,7 +65,7 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 	// Correct loop to iterate through users
 	for _, user := range users { // Use index and value pattern
 		userInput = append(userInput, model.UserInput{
-			HashId:     &user.Hash,      // Use the value, not the index
+			Id:     &user.ID,      // Use the value, not the index
 			UserName:   &user.UserName,  // Use the value, not the index
 			FirstName:  &user.FirstName, // Use the value, not the index
 			LastName:   &user.LastName,  // Use the value, not the index
@@ -86,13 +86,6 @@ func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	id := ulid.Make()
 	requestedUser.ID = id.String()
 
-	// Compute a hash for the user.
-	hash, err := model.HashObject(requestedUser)
-	if err != nil {
-		return nil, err
-	}
-	requestedUser.Hash = *hash
-
 	// Insert the record into the USERS table.
 	if err := db.Table("users").Create(&requestedUser).Error; err != nil {
 		return nil, err
@@ -104,7 +97,7 @@ func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	var user model.UserDTO
 	// Retrieve the user to be updated by its HASH.
-	if err := db.Table("users").Where("hash LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("id LIKE ?", requestedUser.ID).First(&user).Error; err != nil {
 		return nil, err
 	}
 	if user.ID == "" {
@@ -124,13 +117,6 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	if requestedUser.Email != "" {
 		user.Email = requestedUser.Email
 	}
-
-	// Recompute the hash after updates.
-	hash, err := model.HashObject(user)
-	if err != nil {
-		return nil, err
-	}
-	user.Hash = *hash
 
 	// Update the record in the USERS table.
 	if err := db.Table("users").Where("ID = ?", user.ID).Updates(user).Error; err != nil {
