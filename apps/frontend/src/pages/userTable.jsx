@@ -36,7 +36,7 @@ const UserTable = () => {
 
   // Trigger initial data fetch if no users yet
   useMemo(() => {
-    if (!users || users.users.length === 0) {
+    if (!users && users.users.length === 0) {
       fetchUsers();
     }
   }, [setUsers, users]);
