@@ -40,16 +40,6 @@ func initEcho() {
 	e.DELETE("/api/user/:id", controller.DeleteUser)
 }
 
-// Handler is the AWS Lambda handler function.
-// func Handler(w http.ResponseWriter, r *http.Request) {
-// 	if err := repository.SeverlessInitDB(); err != nil {
-// 		http.Error(w, "Database initialization error", http.StatusInternalServerError)
-// 		return
-// 	}
-// 	echoOnce.Do(initEcho)
-// 	e.ServeHTTP(w, r)
-// }
-
 func Handler(w http.ResponseWriter, r *http.Request) {
 	// Initialize the database, capturing errors with full stack trace.
 	initDBOnce.Do(func() {
