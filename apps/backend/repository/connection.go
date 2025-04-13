@@ -61,26 +61,13 @@ func InitDB() error {
 
 func ServerlessInitDB() error {
 	var err error
-	connectStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=enable TimeZone=UTC pool_mode=%s",
-		os.Getenv("DATABASE_HOST"),
-		os.Getenv("DATABASE_PORT"),
-		os.Getenv("DATABASE_USERNAME"),
-		os.Getenv("DATABASE_PASSWORD"),
-		os.Getenv("DATABASE_NAME"),
-		os.Getenv("DATABASE_POOL_MODE"),
-	)
+	connectStr := os.Getenv("POSTGRES_URL")
 
 	db, err = gorm.Open(postgres.Open(connectStr), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
-	}
-	// Auto migrate with more detailed error handling
-	if err := db.AutoMigrate(&model.UserDTO{}); err != nil {
-		// Log the error as a warning and continue
-		fmt.Printf("Warning: Failed to auto migrate: %v", err)
 	}
 
 	return nil
