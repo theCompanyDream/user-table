@@ -3,6 +3,7 @@ import { UserContext, Table } from '../components';
 
 const UserTable = () => {
   const { users, setUsers } = useContext(UserContext);
+  const [isfetch, setFetched] = useState(false);
   const [search, setSearch] = useState("");
 
   // Function to fetch users with search and page parameters
@@ -36,10 +37,11 @@ const UserTable = () => {
 
   // Trigger initial data fetch if no users yet
   useMemo(() => {
-    if (!users && users.users.length === 0) {
+    if (!isfetch) {
       fetchUsers();
+      setFetched(true);
     }
-  }, [setUsers, users]);
+  }, [isfetch, fetchUsers, setFetched]);
 
   return (
     <main>
