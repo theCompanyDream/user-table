@@ -43,8 +43,15 @@ func (UserDTO) TableName() string {
 }
 
 func InputToDTO(userCreate UserInput) *UserDTO {
-	var user UserDTO
-	copier.Copy(&user, &userCreate)
-	user.Hash = *userCreate.HashId
-	return &user
+    var user UserDTO
+    copier.Copy(&user, &userCreate)
+
+    // Safe dereferencing with nil check
+    if userCreate.HashId != nil {
+        user.Hash = *userCreate.HashId
+    } else {
+        user.Hash = "" // or generate UUID here
+    }
+
+    return &user
 }
