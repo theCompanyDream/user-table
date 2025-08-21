@@ -19,7 +19,7 @@ const UserTable = () => {
       method: "DELETE"
     })
     .then((data) => {
-      const newUsers = users.users.filter(user => userId !== user.ID)
+      const newUsers = users.users.filter(user => userId !== user.id)
       setUsers({...users, users: newUsers})
     })
   }
