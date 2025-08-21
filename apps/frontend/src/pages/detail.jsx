@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
 const UserDetail = () => {
@@ -20,7 +20,7 @@ const UserDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // If editing, fetch the existing user data.
-  useEffect(() => {
+  useMemo(() => {
     if (id) {
       fetch(`/api/user/${id}`)
         .then((res) => {
