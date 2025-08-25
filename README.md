@@ -1,4 +1,4 @@
-# User Administration
+# Id Trials
 
 Welcome to the User Test repository! This repository is a comprehensive setup for a project utilizing Go 1.22, Angular 16, and Docker. It's designed to provide a streamlined development environment with all the necessary configurations in place.
 
@@ -17,9 +17,10 @@ Before you begin, make sure you have Docker installed on your machine. If not, y
 ### Initial Setup
 
 1. Clone the repository:
+
    ```bash
-   git clone https://github.com/theCompanyDream/User-Angular.git
-   cd User-Angular
+   git clone https://github.com/theCompanyDream/id-trials.git
+   cd id-trials
    ```
 
 2. Check for the `.env` file:

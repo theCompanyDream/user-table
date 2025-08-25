@@ -4,30 +4,41 @@ import (
 	"errors"
 	"math"
 
-	"github.com/labstack/echo/v4"
-	"github.com/oklog/ulid/v2"
+	"github.com/bwmarrin/snowflake"
+	"gorm.io/gorm"
 
 	model "github.com/theCompanyDream/user-table/apps/backend/models"
 )
 
+type GormSnowRepository struct {
+	DB *gorm.DB
+}
+
+// NewGormCuidRepository creates a new instance of GormCuidRepository.
+func NewGormSnowRepository(repo *gorm.DB) *GormSnowRepository {
+	return &GormSnowRepository{
+		DB: repo,
+	}
+}
+
 // GetUser retrieves a user by its HASH column.
-func GetUser(hashId string) (*model.UserDTO, error) {
-	var user model.UserDTO
+func (uc *GormSnowRepository) GetUser(hashId string) (*model.UserCUID, error) {
+	var user model.UserCUID
 	// Ensure the table name is correctly referenced (if needed, use Table("users"))
-	if err := db.Table("users").Where("HASH = ?", hashId).First(&user).Error; err != nil {
+	if err := uc.DB.Table("users").Where("id = ?", hashId).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
 // GetUsers retrieves a page of users that match a search criteria.
-func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPaging, error) {
-	var users []model.UserDTO
+func (uc *GormSnowRepository) GetUsers(search string, page, limit int) (*model.UserPaging, error) {
+	var users []model.UserCUID
 	var userInput []model.UserInput
 	var totalCount int64
 
 	// Use db.Model instead of db.Table
-	query := db.Model(&model.UserDTO{})
+	query := uc.DB.Model(&model.UserCUID{})
 
 	if search != "" {
 		likeSearch := "%" + search + "%"
@@ -65,7 +76,7 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 	// Correct loop to iterate through users
 	for _, user := range users { // Use index and value pattern
 		userInput = append(userInput, model.UserInput{
-			HashId:     &user.Hash,      // Use the value, not the index
+			Id:         &user.ID,        // Use the value, not the index
 			UserName:   &user.UserName,  // Use the value, not the index
 			FirstName:  &user.FirstName, // Use the value, not the index
 			LastName:   &user.LastName,  // Use the value, not the index
@@ -74,37 +85,34 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 		})
 	}
 
-	return &model.UserDTOPaging{
+	return &model.UserPaging{
 		Paging: paging,
 		Users:  userInput,
 	}, nil
 }
 
 // CreateUser creates a new user record.
-func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
+func (uc *GormSnowRepository) CreateUser(requestedUser model.UserCUID) (*model.UserCUID, error) {
 	// Generate a new UUID for the user.
-	id := ulid.Make()
-	requestedUser.ID = id.String()
-
-	// Compute a hash for the user.
-	hash, err := model.HashObject(requestedUser)
+	node, err := snowflake.NewNode(1)
 	if err != nil {
 		return nil, err
 	}
-	requestedUser.Hash = *hash
+	id := node.Generate()
+	requestedUser.ID = id.String()
 
 	// Insert the record into the USERS table.
-	if err := db.Table("users").Create(&requestedUser).Error; err != nil {
+	if err := uc.DB.Table("users").Create(&requestedUser).Error; err != nil {
 		return nil, err
 	}
 	return &requestedUser, nil
 }
 
 // UpdateUser updates an existing user's details.
-func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
-	var user model.UserDTO
+func (uc *GormSnowRepository) UpdateUser(requestedUser model.UserCUID) (*model.UserCUID, error) {
+	var user model.UserCUID
 	// Retrieve the user to be updated by its HASH.
-	if err := db.Table("users").Where("hash LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
+	if err := uc.DB.Table("users").Where("id LIKE ?", requestedUser.ID).First(&user).Error; err != nil {
 		return nil, err
 	}
 	if user.ID == "" {
@@ -125,28 +133,21 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 		user.Email = requestedUser.Email
 	}
 
-	// Recompute the hash after updates.
-	hash, err := model.HashObject(user)
-	if err != nil {
-		return nil, err
-	}
-	user.Hash = *hash
-
 	// Update the record in the USERS table.
-	if err := db.Table("users").Where("ID = ?", user.ID).Updates(user).Error; err != nil {
+	if err := uc.DB.Table("users").Where("id = ?", user.ID).Updates(user).Error; err != nil {
 		return nil, err
 	}
 
 	// Optionally, re-fetch the updated record.
-	if err := db.Table("users").Where("ID = ?", user.ID).First(&user).Error; err != nil {
+	if err := uc.DB.Table("users").Where("id = ?", user.ID).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
 // DeleteUser removes a user record based on its HASH.
-func DeleteUser(id string) error {
-	if err := db.Table("users").Where("HASH = ?", id).Delete(&model.UserDTO{}).Error; err != nil {
+func (uc *GormSnowRepository) DeleteUser(id string) error {
+	if err := uc.DB.Table("users").Where("id = ?", id).Delete(&model.UserCUID{}).Error; err != nil {
 		return err
 	}
 	return nil

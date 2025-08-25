@@ -1,4 +1,4 @@
-module github.com/theCompanyDream/user-table
+module github.com/theCompanyDream/id-trials
 
 go 1.23.0
 
