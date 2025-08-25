@@ -8,7 +8,7 @@ import (
 type UserInput struct {
 	// HashId is the public identifier for the user (UUID).
 	// For create operations, this might be generated internally.
-	HashId *string `json:"id" validate:"omitempty,uuid4" form:"id"`
+	Id *string `json:"id" validate:"omitempty,uuid4" form:"id"`
 
 	// UserName is required when creating a new user.
 	UserName *string `json:"user_name" validate:"omitempty,min=5,max=50" form:"user_name"`
@@ -28,8 +28,7 @@ type UserInput struct {
 
 // UserDTO represents a user in the system.
 type UserDTO struct {
-	ID         string  `gorm:"column:id;type:varchar(26);primaryKey" json:"id"`
-	Hash       string  `gorm:"column:hash;type:varchar(64);not null"`
+	Id         string  `gorm:"column:id;type:varchar(26);primaryKey" json:"id"`
 	UserName   string  `gorm:"column:user_name;type:varchar(20);not null" json:"user_name"`
 	FirstName  string  `gorm:"column:first_name;type:varchar(40);not null" json:"first_name"`
 	LastName   string  `gorm:"column:last_name;type:varchar(40);not null" json:"last_name"`
@@ -47,10 +46,10 @@ func InputToDTO(userCreate UserInput) *UserDTO {
 	copier.Copy(&user, &userCreate)
 
 	// Safe dereferencing with nil check
-	if userCreate.HashId != nil {
-		user.ID = *userCreate.HashId
+	if userCreate.Id != nil {
+		user.Id = *userCreate.Id
 	} else {
-		user.ID = "" // or generate UUID here
+		user.Id = "" // or generate UUID here
 	}
 
 	return &user

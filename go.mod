@@ -1,8 +1,10 @@
-module github.com/theCompanyDream/user-table
+module github.com/theCompanyDream/id-trials
 
 go 1.23.0
 
 toolchain go1.24.4
+
+replace github.com/theCompanyDream/id-trials/apps/backend => ./apps/backend
 
 require (
 	github.com/labstack/echo/v4 v4.13.4

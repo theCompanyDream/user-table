@@ -7,14 +7,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/oklog/ulid/v2"
 
-	model "github.com/theCompanyDream/user-table/apps/backend/models"
+	model "github.com/theCompanyDream/id-trials/apps/backend/models"
 )
 
 // GetUser retrieves a user by its HASH column.
-func GetUser(hashId string) (*model.UserDTO, error) {
+func GetUser(Id string) (*model.UserDTO, error) {
 	var user model.UserDTO
 	// Ensure the table name is correctly referenced (if needed, use Table("users"))
-	if err := db.Table("users").Where("ID = ?", hashId).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", Id).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -65,7 +65,7 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 	// Correct loop to iterate through users
 	for _, user := range users { // Use index and value pattern
 		userInput = append(userInput, model.UserInput{
-			HashId:     &user.Hash,      // Use the value, not the index
+			Id:         &user.Id,        // Use the value, not the index
 			UserName:   &user.UserName,  // Use the value, not the index
 			FirstName:  &user.FirstName, // Use the value, not the index
 			LastName:   &user.LastName,  // Use the value, not the index
@@ -84,7 +84,7 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	// Generate a new UUID for the user.
 	id := ulid.Make()
-	requestedUser.ID = id.String()
+	requestedUser.Id = id.String()
 
 	// Insert the record into the USERS table.
 	if err := db.Table("users").Create(&requestedUser).Error; err != nil {
@@ -97,10 +97,10 @@ func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	var user model.UserDTO
 	// Retrieve the user to be updated by its HASH.
-	if err := db.Table("users").Where("ID LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("ID LIKE ?", requestedUser.Id).First(&user).Error; err != nil {
 		return nil, err
 	}
-	if user.ID == "" {
+	if user.Id == "" {
 		return nil, errors.New("user not found")
 	}
 
@@ -119,12 +119,12 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	}
 
 	// Update the record in the USERS table.
-	if err := db.Table("users").Where("ID = ?", user.ID).Updates(user).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", user.Id).Updates(user).Error; err != nil {
 		return nil, err
 	}
 
 	// Optionally, re-fetch the updated record.
-	if err := db.Table("users").Where("ID = ?", user.ID).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", user.Id).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
