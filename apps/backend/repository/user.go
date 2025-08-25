@@ -23,7 +23,6 @@ func GetUser(Id string) (*model.UserDTO, error) {
 // GetUsers retrieves a page of users that match a search criteria.
 func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPaging, error) {
 	var users []model.UserDTO
-	var userInput []model.UserInput
 	var totalCount int64
 
 	// Use db.Model instead of db.Table
@@ -61,22 +60,9 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 		PageSize:  &limit,
 	}
 
-	userInput = make([]model.UserInput, 0, len(users))
-	// Correct loop to iterate through users
-	for _, user := range users { // Use index and value pattern
-		userInput = append(userInput, model.UserInput{
-			Id:         &user.ID,        // Use the value, not the index
-			UserName:   &user.UserName,  // Use the value, not the index
-			FirstName:  &user.FirstName, // Use the value, not the index
-			LastName:   &user.LastName,  // Use the value, not the index
-			Email:      &user.Email,     // Use the value, not the index
-			Department: user.Department, // Use the value, not the index
-		})
-	}
-
 	return &model.UserDTOPaging{
 		Paging: paging,
-		Users:  userInput,
+		Users:  users,
 	}, nil
 }
 
