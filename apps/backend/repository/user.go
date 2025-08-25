@@ -65,7 +65,7 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 	// Correct loop to iterate through users
 	for _, user := range users { // Use index and value pattern
 		userInput = append(userInput, model.UserInput{
-			Id:         &user.Id,        // Use the value, not the index
+			Id:         &user.ID,        // Use the value, not the index
 			UserName:   &user.UserName,  // Use the value, not the index
 			FirstName:  &user.FirstName, // Use the value, not the index
 			LastName:   &user.LastName,  // Use the value, not the index
@@ -84,7 +84,7 @@ func GetUsers(search string, page, limit int, c echo.Context) (*model.UserDTOPag
 func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	// Generate a new UUID for the user.
 	id := ulid.Make()
-	requestedUser.Id = id.String()
+	requestedUser.ID = id.String()
 
 	// Insert the record into the USERS table.
 	if err := db.Table("users").Create(&requestedUser).Error; err != nil {
@@ -97,10 +97,10 @@ func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	var user model.UserDTO
 	// Retrieve the user to be updated by its HASH.
-	if err := db.Table("users").Where("ID LIKE ?", requestedUser.Id).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("ID LIKE ?", requestedUser.ID).First(&user).Error; err != nil {
 		return nil, err
 	}
-	if user.Id == "" {
+	if user.ID == "" {
 		return nil, errors.New("user not found")
 	}
 
@@ -119,12 +119,12 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	}
 
 	// Update the record in the USERS table.
-	if err := db.Table("users").Where("ID = ?", user.Id).Updates(user).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", user.ID).Updates(user).Error; err != nil {
 		return nil, err
 	}
 
 	// Optionally, re-fetch the updated record.
-	if err := db.Table("users").Where("ID = ?", user.Id).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", user.ID).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

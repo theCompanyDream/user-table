@@ -28,7 +28,7 @@ type UserInput struct {
 
 // UserDTO represents a user in the system.
 type UserDTO struct {
-	Id         string  `gorm:"column:id;type:varchar(26);primaryKey" json:"id"`
+	ID         string  `gorm:"column:id;type:varchar(26);primaryKey" json:"id"`
 	UserName   string  `gorm:"column:user_name;type:varchar(20);not null" json:"user_name"`
 	FirstName  string  `gorm:"column:first_name;type:varchar(40);not null" json:"first_name"`
 	LastName   string  `gorm:"column:last_name;type:varchar(40);not null" json:"last_name"`
@@ -47,9 +47,9 @@ func InputToDTO(userCreate UserInput) *UserDTO {
 
 	// Safe dereferencing with nil check
 	if userCreate.Id != nil {
-		user.Id = *userCreate.Id
+		user.ID = *userCreate.Id
 	} else {
-		user.Id = "" // or generate UUID here
+		user.ID = "" // or generate UUID here
 	}
 
 	return &user
