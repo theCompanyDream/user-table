@@ -14,7 +14,7 @@ import (
 func GetUser(hashId string) (*model.UserDTO, error) {
 	var user model.UserDTO
 	// Ensure the table name is correctly referenced (if needed, use Table("users"))
-	if err := db.Table("users").Where("HASH = ?", hashId).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", hashId).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -86,13 +86,6 @@ func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	id := ulid.Make()
 	requestedUser.ID = id.String()
 
-	// Compute a hash for the user.
-	hash, err := model.HashObject(requestedUser)
-	if err != nil {
-		return nil, err
-	}
-	requestedUser.Hash = *hash
-
 	// Insert the record into the USERS table.
 	if err := db.Table("users").Create(&requestedUser).Error; err != nil {
 		return nil, err
@@ -104,7 +97,7 @@ func CreateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 	var user model.UserDTO
 	// Retrieve the user to be updated by its HASH.
-	if err := db.Table("users").Where("hash LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
+	if err := db.Table("users").Where("ID LIKE ?", requestedUser.Hash).First(&user).Error; err != nil {
 		return nil, err
 	}
 	if user.ID == "" {
@@ -125,13 +118,6 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 		user.Email = requestedUser.Email
 	}
 
-	// Recompute the hash after updates.
-	hash, err := model.HashObject(user)
-	if err != nil {
-		return nil, err
-	}
-	user.Hash = *hash
-
 	// Update the record in the USERS table.
 	if err := db.Table("users").Where("ID = ?", user.ID).Updates(user).Error; err != nil {
 		return nil, err
@@ -146,7 +132,7 @@ func UpdateUser(requestedUser model.UserDTO) (*model.UserDTO, error) {
 
 // DeleteUser removes a user record based on its HASH.
 func DeleteUser(id string) error {
-	if err := db.Table("users").Where("HASH = ?", id).Delete(&model.UserDTO{}).Error; err != nil {
+	if err := db.Table("users").Where("ID = ?", id).Delete(&model.UserDTO{}).Error; err != nil {
 		return err
 	}
 	return nil

@@ -28,13 +28,13 @@ type UserInput struct {
 
 // UserDTO represents a user in the system.
 type UserDTO struct {
-	ID         string `gorm:"column:id;type:varchar(26);primaryKey"`
-	Hash       string    `gorm:"column:hash;type:varchar(64);not null" json:"id"`
-	UserName   string    `gorm:"column:user_name;type:varchar(20);not null" json:"user_name"`
-	FirstName  string    `gorm:"column:first_name;type:varchar(40);not null" json:"first_name"`
-	LastName   string    `gorm:"column:last_name;type:varchar(40);not null" json:"last_name"`
-	Email      string    `gorm:"column:email;type:varchar(40);not null;unique" json:"email"`
-	Department *string   `gorm:"column:department;type:varchar(25)" json:"department"`
+	ID         string  `gorm:"column:id;type:varchar(26);primaryKey" json:"id"`
+	Hash       string  `gorm:"column:hash;type:varchar(64);not null"`
+	UserName   string  `gorm:"column:user_name;type:varchar(20);not null" json:"user_name"`
+	FirstName  string  `gorm:"column:first_name;type:varchar(40);not null" json:"first_name"`
+	LastName   string  `gorm:"column:last_name;type:varchar(40);not null" json:"last_name"`
+	Email      string  `gorm:"column:email;type:varchar(40);not null;unique" json:"email"`
+	Department *string `gorm:"column:department;type:varchar(25)" json:"department"`
 }
 
 // TableName sets the table name for UserDTO to "users".
@@ -43,15 +43,15 @@ func (UserDTO) TableName() string {
 }
 
 func InputToDTO(userCreate UserInput) *UserDTO {
-    var user UserDTO
-    copier.Copy(&user, &userCreate)
+	var user UserDTO
+	copier.Copy(&user, &userCreate)
 
-    // Safe dereferencing with nil check
-    if userCreate.HashId != nil {
-        user.Hash = *userCreate.HashId
-    } else {
-        user.Hash = "" // or generate UUID here
-    }
+	// Safe dereferencing with nil check
+	if userCreate.HashId != nil {
+		user.ID = *userCreate.HashId
+	} else {
+		user.ID = "" // or generate UUID here
+	}
 
-    return &user
+	return &user
 }
